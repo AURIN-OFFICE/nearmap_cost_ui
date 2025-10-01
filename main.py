@@ -1,14 +1,88 @@
 import streamlit as st
 import requests
+import pandas as pd
 
 # Configure the Streamlit Page
 st.set_page_config(
     page_title="Nearmap Cost Estimator", 
     page_icon=":money:", 
-    layout="wide"
-    )
-  
+    layout="wide",
+    initial_sidebar_state="collapsed"  # Collapses sidebar if present to save space
+)
+
 class NearMapHelper:
+    @staticmethod
+    def get_all_resources():
+        return {
+            "namespaces": ["raster", "aiPacks", "trueOrthoAiPacks", "aiImpactAssessment"],
+            "resources": {
+                "raster": [
+                "Vert",
+                "DetailDtm",
+                "DetailDsm",
+                "TrueOrtho",
+                "North",
+                "East",
+                "South",
+                "West"
+                ],
+                "aiPacks": [
+                "building",
+                "building_char",
+                "construction",
+                "debris",
+                "pavement_marking",
+                "poles",
+                "pool",
+                "postcat",
+                "roof_char",
+                "roof_cond",
+                "roof_objects",
+                "solar",
+                "surface_permeability",
+                "surfaces",
+                "trampoline",
+                "vegetation"
+                ],
+                "trueOrthoAiPacks": [
+                "building",
+                "building_char"
+                ],
+                "aiImpactAssessment": [
+                "postcat"
+                ]
+            },
+            "all_tuples": [
+                "raster:Vert",
+                "raster:DetailDtm",
+                "raster:DetailDsm",
+                "raster:TrueOrtho",
+                "raster:North",
+                "raster:East",
+                "raster:South",
+                "raster:West",
+                "aiPacks:building",
+                "aiPacks:building_char",
+                "aiPacks:construction",
+                "aiPacks:debris",
+                "aiPacks:pavement_marking",
+                "aiPacks:poles",
+                "aiPacks:pool",
+                "aiPacks:postcat",
+                "aiPacks:roof_char",
+                "aiPacks:roof_cond",
+                "aiPacks:roof_objects",
+                "aiPacks:solar",
+                "aiPacks:surface_permeability",
+                "aiPacks:surfaces",
+                "aiPacks:trampoline",
+                "aiPacks:vegetation",
+                "trueOrthoAiPacks:building",
+                "trueOrthoAiPacks:building_char",
+                "aiImpactAssessment:postcat"
+            ]
+        }
+
     def __init__(self, API_KEY, since, until, resources):
         self.API_KEY = API_KEY
         self.since = since
@@ -86,39 +160,75 @@ class NearMapHelper:
         headers = {"accept": "application/json", "authorization": f"Bearer {self.API_KEY}"}
         return self.get_data(url, headers)
 
-# Main body
-AOI = {
-        "coordinates": [
-          [
-            [
-              144.96005958283428,
-              -37.81180103987199
-            ],
-            [
-              144.96005958283428,
-              -37.81327791021184
-            ],
-            [
-              144.9627625779271,
-              -37.81327791021184
-            ],
-            [
-              144.9627625779271,
-              -37.81180103987199
-            ],
-            [
-              144.96005958283428,
-              -37.81180103987199
-            ]
-          ]
-        ],
-        "type": "Polygon"
-    }
+# # Main body
+left, right = st.columns([1, 3], gap="large")
 
-API_KEY = st.secrets["API_KEY"]
-since = "2024-01-01"
-until = "2024-12-31"
-resources = "raster:Vert,raster:TrueOrtho,aiPacks:roof_objects"
-helper = NearMapHelper(API_KEY, since, until, resources)
-response = helper.get_transaction_content(AOI)
-st.write(helper.get_cost_estimate(response))
+with left:
+    st.header("Nearmap Cost Estimation")
+    
+    # API Key Input
+    api_key = st.text_input("Enter Nearmap API Key", type="password", value="")
+    
+    # Resource Type Checkboxes
+    st.subheader("Select Resource Types")
+    box = st.container(height=260, border=True)   # <- fixed height makes it scroll
+    with box:
+        resources_object = NearMapHelper.get_all_resources()
+        resource_type = resources_object['all_tuples']
+        selected_resources = []
+        for resource in resource_type:
+            if st.checkbox(resource, key=resource):
+                selected_resources.append(resource)
+    
+    since = st.date_input("Start date", value="2024-01-01", format="YYYY-MM-DD")
+    until = st.date_input("End date", value="2024-12-31", format="YYYY-MM-DD")
+
+
+    if st.button("Submit Estimation", type="primary"):
+        if not api_key:
+            st.error("Please enter an API key.")
+        elif not selected_resources:
+            st.error("Please select at least one resource type.")
+        else:
+            #TODO to be replace later on
+            AOI = {
+                "coordinates": [
+                    [
+                    [
+                        144.96005958283428,
+                        -37.81180103987199
+                    ],
+                    [
+                        144.96005958283428,
+                        -37.81327791021184
+                    ],
+                    [
+                        144.9627625779271,
+                        -37.81327791021184
+                    ],
+                    [
+                        144.9627625779271,
+                        -37.81180103987199
+                    ],
+                    [
+                        144.96005958283428,
+                        -37.81180103987199
+                    ]
+                    ]
+                ],
+                "type": "Polygon"
+            }
+            helper = NearMapHelper(api_key, str(since), str(until), ', '.join(selected_resources))
+            response = helper.get_transaction_content(AOI)
+            cost = helper.get_cost_estimate(response)
+            st.session_state['cost'] = cost
+
+
+    # Text Area for Query Results
+    if ('cost' in st.session_state):
+        st.subheader("Estimation Results")
+        st.metric(label='Cost', value=f"{st.session_state['cost']}")
+
+
+with right:
+    st.write("second secion")
