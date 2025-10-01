@@ -1,6 +1,13 @@
 import streamlit as st
 import requests
 import pandas as pd
+import folium
+from map_helper import BoxDrawer
+from streamlit_folium import st_folium
+from folium.plugins import Draw
+import json
+import time
+
 
 # Configure the Streamlit Page
 st.set_page_config(
@@ -160,19 +167,31 @@ class NearMapHelper:
         headers = {"accept": "application/json", "authorization": f"Bearer {self.API_KEY}"}
         return self.get_data(url, headers)
 
+def is_valid_json(json_string: str) -> bool:
+    try:
+        json.loads(json_string)
+        return True
+    except json.JSONDecodeError as e:
+        print(f"Invalid JSON: {e}")
+        return False
+
 # # Main body
+st.header("Nearmap Cost Estimation")
 left, right = st.columns([1, 3], gap="large")
 
+if 'geodata_ready' not in st.session_state:
+    st.session_state.geodata_ready = False
+
+
 with left:
-    st.header("Nearmap Cost Estimation")
-    
     # API Key Input
-    api_key = st.text_input("Enter Nearmap API Key", type="password", value="")
+    api_key = st.text_input("Enter Your Nearmap API Key", type="password", value="")
     
     # Resource Type Checkboxes
-    st.subheader("Select Resource Types")
-    box = st.container(height=260, border=True)   # <- fixed height makes it scroll
-    with box:
+    
+    box_resource = st.container(height=260, border=True)
+    with box_resource:
+        st.write("Select Resource Type(s):")
         resources_object = NearMapHelper.get_all_resources()
         resource_type = resources_object['all_tuples']
         selected_resources = []
@@ -180,55 +199,58 @@ with left:
             if st.checkbox(resource, key=resource):
                 selected_resources.append(resource)
     
-    since = st.date_input("Start date", value="2024-01-01", format="YYYY-MM-DD")
-    until = st.date_input("End date", value="2024-12-31", format="YYYY-MM-DD")
-
+    box_date = st.container(height=180, border=True)
+    with box_date:
+        since = st.date_input("Start date", value="2024-01-01", format="YYYY-MM-DD")
+        until = st.date_input("End date", value="2024-12-31", format="YYYY-MM-DD")
 
     if st.button("Submit Estimation", type="primary"):
         if not api_key:
             st.error("Please enter an API key.")
         elif not selected_resources:
             st.error("Please select at least one resource type.")
-        else:
-            #TODO to be replace later on
-            AOI = {
-                "coordinates": [
-                    [
-                    [
-                        144.96005958283428,
-                        -37.81180103987199
-                    ],
-                    [
-                        144.96005958283428,
-                        -37.81327791021184
-                    ],
-                    [
-                        144.9627625779271,
-                        -37.81327791021184
-                    ],
-                    [
-                        144.9627625779271,
-                        -37.81180103987199
-                    ],
-                    [
-                        144.96005958283428,
-                        -37.81180103987199
-                    ]
-                    ]
-                ],
-                "type": "Polygon"
-            }
-            helper = NearMapHelper(api_key, str(since), str(until), ', '.join(selected_resources))
-            response = helper.get_transaction_content(AOI)
-            cost = helper.get_cost_estimate(response)
-            st.session_state['cost'] = cost
+        elif not st.session_state.geodata_ready:
+            st.error("Either upload a geojson or select the extent on the map.")
+        else: 
+            try:
+                with st.spinner("Waiting for API response..."):
+                    helper = NearMapHelper(api_key, str(since), str(until), ', '.join(selected_resources))
+                    response = helper.get_transaction_content(st.session_state.geodata['geometry'])
+                    cost = helper.get_cost_estimate(response)
+                    time.sleep(3) 
+                    st.session_state['cost'] = cost
+            except Exception as e:
+                st.error(e)
 
-
-    # Text Area for Query Results
-    if ('cost' in st.session_state):
-        st.subheader("Estimation Results")
-        st.metric(label='Cost', value=f"{st.session_state['cost']}")
 
 
 with right:
-    st.write("second secion")
+    uploaded_file = st.file_uploader('Upload GeoJSON')
+    drawer = BoxDrawer(center=(-37.8136, 144.9631), zoom=12, height=500)
+    if uploaded_file:
+        geojson = uploaded_file.getvalue()
+        if geojson and is_valid_json(geojson):
+            st.session_state.geodata_ready = True
+            fc = json.loads(geojson)
+            st.session_state.geodata = fc["features"][0]
+            drawer.show_geojson(fc)
+            st.info("GeoJSON successfully uploaded.")
+        else:
+            st.info("Upload a valid GeoJSON.")
+    else:
+        drawer.render()   
+        fc = drawer.last_feature_collection() or {"type": "FeatureCollection", "features": []}
+        if fc["features"]:
+            st.session_state.geodata_ready = True
+            st.session_state.geodata = fc["features"][0]
+        else:
+            st.info("Draw a rectangle on the map to see the GeoJSON here.")
+            
+            
+            
+# Text Area for Query Results
+if ('cost' in st.session_state):
+    box_result = st.container(height=100, border=True)
+    with box_result:
+        st.metric(label='Total Cost', value=f"{st.session_state['cost']}")
+        # st.metric(label='Remaining Credits', value=f"{st.session_state['remaining_credits']}")
