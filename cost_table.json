@@ -1,0 +1,97 @@
+[
+  {
+    "Content type": "Vertical",
+    "Credits (single survey)": 10,
+    "Credits (all survey data)": 15.0
+  },
+  {
+    "Content type": "Panorama (all directions)",
+    "Credits (single survey)": 13,
+    "Credits (all survey data)": 19.5
+  },
+  {
+    "Content type": "Panorama (north)",
+    "Credits (single survey)": 4,
+    "Credits (all survey data)": 6.0
+  },
+  {
+    "Content type": "Panorama (south)",
+    "Credits (single survey)": 4,
+    "Credits (all survey data)": 6.0
+  },
+  {
+    "Content type": "Panorama (east)",
+    "Credits (single survey)": 4,
+    "Credits (all survey data)": 6.0
+  },
+  {
+    "Content type": "Panorama (west)",
+    "Credits (single survey)": 4,
+    "Credits (all survey data)": 6.0
+  },
+  {
+    "Content type": "Vertical + Panorama (all directions)",
+    "Credits (single survey)": 20,
+    "Credits (all survey data)": 30.0
+  },
+  {
+    "Content type": "True Ortho",
+    "Credits (single survey)": 20,
+    "Credits (all survey data)": 30.0
+  },
+  {
+    "Content type": "AI (all packs)",
+    "Credits (single survey)": 35,
+    "Credits (all survey data)": 52.5
+  },
+  {
+    "Content type": "DEM/DTM",
+    "Credits (single survey)": 20,
+    "Credits (all survey data)": 30.0
+  },
+  {
+    "Content type": "DSM",
+    "Credits (single survey)": 30,
+    "Credits (all survey data)": 45.0
+  },
+  {
+    "Content type": "AI (1 pack)",
+    "Credits (single survey)": 5,
+    "Credits (all survey data)": 7.5
+  },
+  {
+    "Content type": "Nearmap ImpactAssessment AI",
+    "Credits (single survey)": 35,
+    "Credits (all survey data)": 52.5
+  },
+  {
+    "Content type": "Nearmap Fire Risk AI: WUI and WHP",
+    "Credits (single survey)": 20,
+    "Credits (all survey data)": 30.0
+  },
+  {
+    "Content type": "AI Assessment Roof Condition",
+    "Credits (single survey)": 5,
+    "Credits (all survey data)": 7.5
+  },
+  {
+    "Content type": "Nearmap Fire Risk AI: Defensible Space",
+    "Credits (single survey)": 20,
+    "Credits (all survey data)": 30.0
+  },
+  {
+    "Content type": "Nearmap ImpactTriage AI",
+    "Credits (single survey)": 350,
+    "Credits (all survey data)": 525.0
+  },
+  {
+    "Content type": "Nearmap Fire Risk AI: 3D Topography",
+    "Credits (single survey)": 20,
+    "Credits (all survey data)": 30.0
+  },
+  {
+    "Content type": "Nearmap Fire Risk AI: All",
+    "Credits (single survey)": 40,
+    "Credits (all survey data)": 60.0
+  }
+]
