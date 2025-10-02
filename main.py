@@ -17,6 +17,21 @@ st.set_page_config(
     initial_sidebar_state="collapsed"  # Collapses sidebar if present to save space
 )
 
+# Remove default padding in the UI
+st.markdown(
+    """
+    <style>
+        .block-container {
+            padding-top: 1rem;
+            padding-bottom: 0rem;
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 class NearMapHelper:
     @staticmethod
     def get_all_resources():
@@ -90,11 +105,12 @@ class NearMapHelper:
             ]
         }
 
-    def __init__(self, API_KEY, since, until, resources):
+    def __init__(self, API_KEY, since, until, resources, dates_single):
         self.API_KEY = API_KEY
         self.since = since
         self.until = until
         self.resources = resources
+        self.dates_single = dates_single
     def get_data(self, url, headers):
         response = requests.get(url, headers=headers)
         
@@ -142,7 +158,7 @@ class NearMapHelper:
             "preview": "true",
             "aiOn3dCoverage": "false",
             "resources": self.resources,
-            "dates": "all",
+            "dates": self.dates_single,
             "since": self.since,
             "until": self.until,
             "overlap": "all",
@@ -167,16 +183,73 @@ class NearMapHelper:
         headers = {"accept": "application/json", "authorization": f"Bearer {self.API_KEY}"}
         return self.get_data(url, headers)
 
-def is_valid_json(json_string: str) -> bool:
-    try:
-        json.loads(json_string)
-        return True
-    except json.JSONDecodeError as e:
-        print(f"Invalid JSON: {e}")
-        return False
+
+class OtherHelpers:
+    @staticmethod
+    def is_valid_json(json_string: str) -> bool:
+        try:
+            json.loads(json_string)
+            return True
+        except json.JSONDecodeError as e:
+            print(f"Invalid JSON: {e}")
+            return False
+
+    @staticmethod
+    @st.dialog("Cost Table", width="medium", dismissible=True, on_dismiss="ignore")
+    def seeCostTable():
+        st.write("The cost table displays the number of credits consumed for different content types per request or 1,000sqm whichever is less, based on whether you access a single capture or multiple captures.")
+        st.dataframe(pd.DataFrame(json.load(open("cost_table.json"))))
+
+
+    @staticmethod
+    @st.dialog("Estimation Outcome", width="medium", dismissible=True, on_dismiss="ignore")
+    def seeResultModal():
+        st.write("The estimated cost of requested query is as follows:")
+        col1, col2 = st.columns(2)
+        with col1:
+            st.metric(label='Total Cost', value=f"{st.session_state['cost']}")
+        with col2:
+            # st.metric(label='Remaining Credits', value=f"{st.session_state['remaining_credits']}")
+            st.write("Remaining Credits: To be implemented")
+        st.session_state.pop('cost')
+
+    @staticmethod
+    @st.dialog("Error", width="small", dismissible=True, on_dismiss="ignore")
+    def seeErrorModal():
+        if ('latestErrorMessage' in st.session_state):
+            st.error(st.session_state['latestErrorMessage'])
+            st.session_state.pop('latestErrorMessage')
+        else:
+            st.write('Nothing to report, please close this dialog window.')
+    
 
 # # Main body
-st.header("Nearmap Cost Estimation")
+col1, col2, col3 = st.columns([10,1,1], gap="small")
+with col1:
+    st.markdown(
+        """
+        <div style='display: flex; align-items: center; height: 120px;'>
+            <h1 style='margin: 0;'>Nearmap Cost Estimation</h1>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+with col2:
+    # st.image("logos/aurin-logo-400-D0zkc36m.png", width="content")
+    st.markdown(
+            "<div style='display: flex; align-items: center;'>"
+            "<img src='https://data.aurin.org.au/assets/aurin-logo-400-D0zkc36m.png' style='height: 120px; margin: auto;'> "
+            "</div>",
+            unsafe_allow_html=True
+        )
+with col3:
+    st.markdown(
+            "<div style='display: flex; align-items: center;'>"
+            "<img src='https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Nearmap-logo.png/1200px-Nearmap-logo.png' style='height: 120px; margin: auto;'> "
+            "</div>",
+            unsafe_allow_html=True
+        )
+
 left, right = st.columns([1, 3], gap="large")
 
 if 'geodata_ready' not in st.session_state:
@@ -199,37 +272,59 @@ with left:
             if st.checkbox(resource, key=resource):
                 selected_resources.append(resource)
     
-    box_date = st.container(height=180, border=True)
+    box_date = st.container(height="content", border=True)
     with box_date:
         since = st.date_input("Start date", value="2024-01-01", format="YYYY-MM-DD")
         until = st.date_input("End date", value="2024-12-31", format="YYYY-MM-DD")
 
-    if st.button("Submit Estimation", type="primary"):
-        if not api_key:
-            st.error("Please enter an API key.")
-        elif not selected_resources:
-            st.error("Please select at least one resource type.")
-        elif not st.session_state.geodata_ready:
-            st.error("Either upload a geojson or select the extent on the map.")
-        else: 
-            try:
-                with st.spinner("Waiting for API response..."):
-                    helper = NearMapHelper(api_key, str(since), str(until), ', '.join(selected_resources))
-                    response = helper.get_transaction_content(st.session_state.geodata['geometry'])
-                    cost = helper.get_cost_estimate(response)
-                    time.sleep(3) 
-                    st.session_state['cost'] = cost
-            except Exception as e:
-                st.error(e)
+    box_radio_button = st.container(height="content", border=True)
+    with box_radio_button:
+        st.write("Capture dates")
+        dates_single = st.toggle(
+            "Latest capture only",
+            value=True,
+            help="If on: returns only the most recent capture. If off: returns all available captures."
+    )
 
+    # Map it to API value
+    st.session_state.dates_single = "single" if dates_single else "all"
+    
+
+    button_col1, button_col2 = st.columns(2, gap=None)
+    with button_col1:
+        if st.button("Submit Estimation", type="primary", help="Submit the estimation to the API", icon="🔥"):
+            if not api_key:
+                st.session_state['latestErrorMessage'] = "Please enter an API key."
+                OtherHelpers.seeErrorModal()
+            elif not selected_resources:
+                st.session_state['latestErrorMessage'] = "Please select at least one resource type."
+                OtherHelpers.seeErrorModal()
+            elif not st.session_state.geodata_ready:
+                st.session_state['latestErrorMessage'] = "Either upload a geojson or select the extent on the map."
+                OtherHelpers.seeErrorModal()
+            else: 
+                try:
+                    with st.spinner("Waiting for API response..."):
+                        helper = NearMapHelper(api_key, str(since), str(until), ', '.join(selected_resources), st.session_state.dates_single)
+                        response = helper.get_transaction_content(st.session_state.geodata['geometry'])
+                        cost = helper.get_cost_estimate(response)
+                        time.sleep(3) 
+                        st.session_state['cost'] = cost
+                except Exception as e:
+                    st.session_state['latestErrorMessage'] = str(e)
+                    OtherHelpers.seeErrorModal()
+    with button_col2:
+        if st.button("See Cost Table", type="secondary", help="See the cost table", icon="📊"):
+            # st.modal("Cost Table", "To be implemented")
+            OtherHelpers.seeCostTable()
 
 
 with right:
-    uploaded_file = st.file_uploader('Upload GeoJSON')
+    uploaded_file = st.file_uploader('Upload GeoJSON', type=["geojson", "json"])
     drawer = BoxDrawer(center=(-37.8136, 144.9631), zoom=12, height=500)
     if uploaded_file:
         geojson = uploaded_file.getvalue()
-        if geojson and is_valid_json(geojson):
+        if geojson and OtherHelpers.is_valid_json(geojson):
             st.session_state.geodata_ready = True
             fc = json.loads(geojson)
             st.session_state.geodata = fc["features"][0]
@@ -246,11 +341,6 @@ with right:
         else:
             st.info("Draw a rectangle on the map to see the GeoJSON here.")
             
-            
-            
 # Text Area for Query Results
 if ('cost' in st.session_state):
-    box_result = st.container(height=100, border=True)
-    with box_result:
-        st.metric(label='Total Cost', value=f"{st.session_state['cost']}")
-        # st.metric(label='Remaining Credits', value=f"{st.session_state['remaining_credits']}")
+    OtherHelpers.seeResultModal()
