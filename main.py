@@ -7,7 +7,12 @@ from streamlit_folium import st_folium
 from folium.plugins import Draw
 import json
 import time
-
+from shapely.geometry import shape
+from shapely.ops import transform
+import pyproj
+from functools import partial
+from pyproj import Transformer, CRS
+import shapely
 
 # Configure the Streamlit Page
 st.set_page_config(
@@ -74,35 +79,143 @@ class NearMapHelper:
                 "postcat"
                 ]
             },
-            "all_tuples": [
-                "raster:Vert",
-                "raster:DetailDtm",
-                "raster:DetailDsm",
-                "raster:TrueOrtho",
-                "raster:North",
-                "raster:East",
-                "raster:South",
-                "raster:West",
-                "aiPacks:building",
-                "aiPacks:building_char",
-                "aiPacks:construction",
-                "aiPacks:debris",
-                "aiPacks:pavement_marking",
-                "aiPacks:poles",
-                "aiPacks:pool",
-                "aiPacks:postcat",
-                "aiPacks:roof_char",
-                "aiPacks:roof_cond",
-                "aiPacks:roof_objects",
-                "aiPacks:solar",
-                "aiPacks:surface_permeability",
-                "aiPacks:surfaces",
-                "aiPacks:trampoline",
-                "aiPacks:vegetation",
-                "trueOrthoAiPacks:building",
-                "trueOrthoAiPacks:building_char",
-                "aiImpactAssessment:postcat"
-            ]
+            "all_tuples": {
+                "raster:Vert": {
+                    "Credits (single survey)": 10,
+                    "Credits (all survey data)": 15.0,
+                    "matched_content_type": "Vertical"
+                },
+                "raster:DetailDtm": {
+                    "Credits (single survey)": 20,
+                    "Credits (all survey data)": 30.0,
+                    "matched_content_type": "DEM/DTM"
+                },
+                "raster:DetailDsm": {
+                    "Credits (single survey)": 30,
+                    "Credits (all survey data)": 45.0,
+                    "matched_content_type": "DSM"
+                },
+                "raster:TrueOrtho": {
+                    "Credits (single survey)": 20,
+                    "Credits (all survey data)": 30.0,
+                    "matched_content_type": "True Ortho"
+                },
+                "raster:North": {
+                    "Credits (single survey)": 4,
+                    "Credits (all survey data)": 6.0,
+                    "matched_content_type": "Panorama (north)"
+                },
+                "raster:East": {
+                    "Credits (single survey)": 4,
+                    "Credits (all survey data)": 6.0,
+                    "matched_content_type": "Panorama (east)"
+                },
+                "raster:South": {
+                    "Credits (single survey)": 4,
+                    "Credits (all survey data)": 6.0,
+                    "matched_content_type": "Panorama (south)"
+                },
+                "raster:West": {
+                    "Credits (single survey)": 4,
+                    "Credits (all survey data)": 6.0,
+                    "matched_content_type": "Panorama (west)"
+                },
+                "aiPacks:building": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "aiPacks:building_char": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "aiPacks:construction": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "aiPacks:debris": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "aiPacks:pavement_marking": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "aiPacks:poles": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "aiPacks:pool": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "aiPacks:postcat": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "aiPacks:roof_char": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "aiPacks:roof_cond": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "aiPacks:roof_objects": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "aiPacks:solar": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "aiPacks:surface_permeability": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "aiPacks:surfaces": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "aiPacks:trampoline": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "aiPacks:vegetation": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "trueOrthoAiPacks:building": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "trueOrthoAiPacks:building_char": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "aiImpactAssessment:postcat": {
+                    "Credits (single survey)": 35,
+                    "Credits (all survey data)": 52.5,
+                    "matched_content_type": "Nearmap ImpactAssessment AI"
+                }
+                }
         }
 
     def __init__(self, API_KEY, since, until, resources, dates_single):
@@ -195,6 +308,38 @@ class OtherHelpers:
             return False
 
     @staticmethod
+    def estimate_area(geojson_feature):
+        """
+        Estimate the area of a GeoJSON feature in square meters.
+        
+        Args:
+            geojson_feature: A GeoJSON feature object
+            
+        Returns:
+            float: Area in square meters
+        """
+        try:
+            # Create a shapely geometry from the GeoJSON
+            geom = shape(geojson_feature['geometry'])
+            
+            # Use an equal-area projection based on centroid of geometry
+            lon, lat = geom.centroid.x, geom.centroid.y
+            local_aea = CRS.from_proj4(
+                f"+proj=aea +lat_0={lat} +lon_0={lon} +lat_1={lat-2} +lat_2={lat+2} +datum=WGS84 +units=m"
+            )
+            
+            # Transformer from WGS84 (EPSG:4326) to local equal-area projection
+            transformer = Transformer.from_crs("EPSG:4326", local_aea, always_xy=True)
+            
+            # Reproject geometry
+            projected_geom = shapely.ops.transform(transformer.transform, geom)
+            return projected_geom.area
+                        
+        except Exception as e:
+            print(f"Error calculating area: {e}")
+            return 0.0
+
+    @staticmethod
     @st.dialog("Cost Table", width="medium", dismissible=True, on_dismiss="ignore")
     def seeCostTable():
         st.write("The cost table displays the number of credits consumed for different content types per request or 1,000sqm whichever is less, based on whether you access a single capture or multiple captures.")
@@ -235,7 +380,6 @@ with col1:
         unsafe_allow_html=True
     )
 with col2:
-    # st.image("logos/aurin-logo-400-D0zkc36m.png", width="content")
     st.markdown(
             "<div style='display: flex; align-items: center;'>"
             "<img src='https://data.aurin.org.au/assets/aurin-logo-400-D0zkc36m.png' style='height: 120px; margin: auto;'> "
@@ -310,12 +454,31 @@ with left:
                         cost = helper.get_cost_estimate(response)
                         time.sleep(3) 
                         st.session_state['cost'] = cost
+                        
                 except Exception as e:
-                    st.session_state['latestErrorMessage'] = str(e)
-                    OtherHelpers.seeErrorModal()
+                    if "INVALID_AREA" in str(e):
+                        total_cost = 0
+                        ai_counter = 0
+                        area_sqm = OtherHelpers.estimate_area(st.session_state.geodata)
+                        all_resources = NearMapHelper.get_all_resources()['all_tuples']
+                        for resource in selected_resources:
+                            resource_object = all_resources[resource]
+                            namespace = resource.split(":")[0]
+                            unit_cost = resource_object['Credits (single survey)'] if st.session_state.dates_single == "single" else resource_object['Credits (all survey data)']
+                            if (namespace != "aiPacks"):
+                                total_cost += round(unit_cost*area_sqm/1000)
+                            elif (namespace == "aiPacks" and ai_counter < 7):
+                                ai_counter += 1
+                                total_cost += round(unit_cost*area_sqm/1000)
+                            else:
+                                pass
+
+                        st.session_state['cost'] = total_cost
+                    else:
+                        st.session_state['latestErrorMessage'] = str(e)
+                        OtherHelpers.seeErrorModal()
     with button_col2:
         if st.button("See Cost Table", type="secondary", help="See the cost table", icon="📊"):
-            # st.modal("Cost Table", "To be implemented")
             OtherHelpers.seeCostTable()
 
 
@@ -329,7 +492,7 @@ with right:
             fc = json.loads(geojson)
             st.session_state.geodata = fc["features"][0]
             drawer.show_geojson(fc)
-            st.info("GeoJSON successfully uploaded.")
+            st.success("GeoJSON successfully uploaded.")            
         else:
             st.info("Upload a valid GeoJSON.")
     else:
