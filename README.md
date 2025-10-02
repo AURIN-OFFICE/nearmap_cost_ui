@@ -74,6 +74,23 @@ The application calculates costs based on:
 
 ## Installation
 
+### Option 1: Docker (Recommended)
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd nearmap_cost_ui
+```
+
+2. Build and run with Docker Compose:
+```bash
+docker-compose up --build
+```
+
+3. Access the application at `http://localhost:8501`
+
+### Option 2: Local Python Installation
+
 1. Clone the repository:
 ```bash
 git clone <repository-url>
@@ -93,6 +110,24 @@ pip install -r requirements.txt
 
 ## Usage
 
+### Docker Usage
+
+1. Run the application with Docker Compose:
+```bash
+docker-compose up --build
+```
+
+2. Access the application at `http://localhost:8501`
+
+3. Use the application:
+   - Enter your Nearmap API key
+   - Select resource types you want to estimate
+   - Choose date range and capture type
+   - Either draw a rectangle on the map or upload a GeoJSON file
+   - Click "Submit Estimation" to get cost estimates
+
+### Local Python Usage
+
 1. Run the application:
 ```bash
 streamlit run main.py
@@ -106,6 +141,150 @@ streamlit run main.py
    - Choose date range and capture type
    - Either draw a rectangle on the map or upload a GeoJSON file
    - Click "Submit Estimation" to get cost estimates
+
+## Docker Deployment
+
+### Quick Start
+
+The easiest way to run the application is using the provided build scripts:
+
+#### Linux/macOS:
+```bash
+# Clone the repository
+git clone <repository-url>
+cd nearmap_cost_ui
+
+# Make the build script executable
+chmod +x build.sh
+
+# Build and run the application
+./build.sh run
+
+# Or start in background
+./build.sh start
+
+# Access the application at http://localhost:8501
+```
+
+#### Windows:
+```cmd
+# Clone the repository
+git clone <repository-url>
+cd nearmap_cost_ui
+
+# Build and run the application
+build.bat run
+
+# Or start in background
+build.bat start
+
+# Access the application at http://localhost:8501
+```
+
+#### Manual Docker Compose:
+```bash
+# Clone the repository
+git clone <repository-url>
+cd nearmap_cost_ui
+
+# Build and run the application
+docker-compose up --build
+
+# Access the application at http://localhost:8501
+```
+
+### Docker Commands
+
+#### Build the Docker image:
+```bash
+docker build -t nearmap-cost-ui .
+```
+
+#### Run the container:
+```bash
+docker run -p 8501:8501 nearmap-cost-ui
+```
+
+#### Run with Docker Compose:
+```bash
+# Start the application
+docker-compose up
+
+# Start in background
+docker-compose up -d
+
+# Stop the application
+docker-compose down
+
+# Rebuild and start
+docker-compose up --build
+```
+
+### Build Scripts
+
+The repository includes convenient build scripts for easy deployment:
+
+- **`build.sh`** (Linux/macOS): Bash script with colored output and error handling
+- **`build.bat`** (Windows): Batch script for Windows environments
+
+#### Available Commands:
+- `build` - Build the Docker image
+- `run` - Run the application with Docker Compose
+- `start` - Start the application in background
+- `stop` - Stop the application
+- `logs` - Show application logs
+- `clean` - Clean up Docker resources
+- `help` - Show help message
+
+### Docker Configuration
+
+The application includes several Docker configuration files:
+
+- **`Dockerfile`**: Multi-stage build with Python 3.11, system dependencies, and security best practices
+- **`docker-compose.yml`**: Service definition with port mapping, environment variables, and health checks
+- **`.dockerignore`**: Excludes unnecessary files from the Docker build context
+- **`entrypoint.sh`**: Custom startup script with health checks and error handling
+
+### Environment Variables
+
+You can customize the application behavior using environment variables:
+
+```bash
+# Streamlit configuration
+STREAMLIT_SERVER_PORT=8501
+STREAMLIT_SERVER_ADDRESS=0.0.0.0
+STREAMLIT_SERVER_HEADLESS=true
+STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
+```
+
+### Production Deployment
+
+For production deployment, consider:
+
+1. **Using a reverse proxy** (nginx, Apache) for SSL termination
+2. **Setting up monitoring** and logging
+3. **Using environment variables** for configuration
+4. **Implementing proper secrets management**
+
+Example production docker-compose.yml:
+```yaml
+version: '3.8'
+services:
+  nearmap-cost-ui:
+    build: .
+    ports:
+      - "8501:8501"
+    environment:
+      - STREAMLIT_SERVER_PORT=8501
+      - STREAMLIT_SERVER_ADDRESS=0.0.0.0
+      - STREAMLIT_SERVER_HEADLESS=true
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8501/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+```
 
 ## API Key
 
