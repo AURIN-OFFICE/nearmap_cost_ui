@@ -1,7 +1,23 @@
+# Nearmap Cost Estimation Application Dependencies
+# This file contains all Python packages required to run the Nearmap Cost Estimation application
+
+# Web application framework for creating the user interface
 streamlit>=1.28.0
+
+# HTTP library for making API requests to Nearmap services
 requests>=2.31.0
+
+# Data manipulation and analysis library for handling tabular data
 pandas>=2.0.0
+
+# Interactive mapping library for creating web maps
 folium>=0.14.0
+
+# Streamlit integration for Folium maps
 streamlit-folium>=0.15.0
+
+# Geometric operations library for area calculations and spatial analysis
 shapely>=2.0.0
+
+# Cartographic projections library for coordinate transformations
 pyproj>=3.6.0
