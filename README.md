@@ -97,16 +97,20 @@ git clone <repository-url>
 cd nearmap_cost_ui
 ```
 
-2. Create a virtual environment:
-```bash
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-```
+2. Install dependencies.
 
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+   **Recommended — [uv](https://github.com/astral-sh/uv)** (matches the sibling `nearmap` repo; reads `pyproject.toml` + `uv.lock`):
+   ```bash
+   uv sync
+   ```
+   This creates a `.venv` with the pinned runtime + dev (pytest) dependencies.
+
+   Or with plain pip + venv:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
 
 ## Usage
 
@@ -130,7 +134,7 @@ docker-compose up --build
 
 1. Run the application:
 ```bash
-streamlit run main.py
+uv run streamlit run main.py    # or, with an activated venv: streamlit run main.py
 ```
 
 2. Open your browser and navigate to the provided local URL (typically `http://localhost:8501`)
@@ -315,14 +319,21 @@ The application is built using:
 
 ```
 nearmap_cost_ui/
-├── main.py              # Main Streamlit application
-├── map_helper.py        # Map drawing utilities and GeoJSON handling
-├── cost_table.json      # Cost table data with credit requirements
-├── logos/               # Application logos (AURIN and Nearmap)
-│   ├── aurin-logo-400-D0zkc36m.png
-│   └── Nearmap-logo.png
-├── requirements.txt     # Python dependencies
-└── README.md           # This documentation file
+├── main.py                # Main Streamlit application
+├── map_helper.py          # Map drawing utilities and GeoJSON handling
+├── nearmap_helper.py      # Nearmap API helper + resource/rate table
+├── cost_table.json        # Cost table data with credit requirements
+├── cost_estimation/       # Dual cost estimators + validation harness
+│   ├── coverage_fetcher.py  # GDAL-free port of ../nearmap tiling + preview
+│   ├── by_area.py           # original manual estimator (preserved as-is)
+│   ├── estimators.py        # estimate_cost / count_tiles — UI entry points
+│   ├── data/                # test AOIs + cached credit plans (from ../nearmap)
+│   └── validation/          # offline pytest + REPORT.md + live script
+├── pyproject.toml         # Project metadata + dependencies (uv source of truth)
+├── uv.lock                # Pinned dependency lockfile (uv)
+├── requirements.txt       # Runtime deps (used by Docker / Streamlit Cloud)
+├── requirements-dev.txt   # Dev deps (pytest) for pip users
+└── README.md              # This documentation file
 ```
 
 ## Dependencies
@@ -416,11 +427,21 @@ A: Estimates are based on official Nearmap pricing tables and should be accurate
 
 ### Development Setup
 ```bash
-# Install development dependencies
-pip install -r requirements.txt
+# Install runtime + dev (pytest) dependencies with uv
+uv sync
 
 # Run in development mode
+uv run streamlit run main.py --server.runOnSave true
+
+# Run the offline validation suite (no API key, no cost)
+uv run pytest cost_estimation/validation/test_offline.py -v
+```
+
+With plain pip instead of uv:
+```bash
+pip install -r requirements-dev.txt   # runtime + pytest
 streamlit run main.py --server.runOnSave true
+pytest cost_estimation/validation/test_offline.py -v
 ```
 
 ## Support

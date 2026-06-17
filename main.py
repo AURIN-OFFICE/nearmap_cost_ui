@@ -8,6 +8,12 @@ from nearmap_helper import NearMapHelper
 from folium.plugins import Draw
 import json
 import time
+from cost_estimation.estimators import estimate_cost, count_tiles
+
+# Tiling thresholds for the API-based ("by_api_return") estimate (see caveat E):
+TILE_WARN_THRESHOLD = 50   # confirm before running more than this many preview calls
+TILE_HARD_CAP = 2000       # refuse above this — ask the user to draw a smaller area
+SECONDS_PER_TILE = 0.5     # inter-call sleep; used only to estimate wall-clock time
 
 
 # Configure the Streamlit Page
@@ -85,14 +91,65 @@ class OtherHelpers:
         Shows the total estimated cost and remaining credits (if available)
         from the session state.
         """
-        st.write("The estimated cost of requested query is as follows:")
+        r = st.session_state['result']
+
+        # Format the API figure, flagging undercount when some tiles failed (caveat A).
+        if r['tiles'] and r['tiles_failed'] >= r['tiles']:
+            api_value = "API error"
+        elif r['tiles_failed']:
+            api_value = f"≥ {r['by_api_return']:,}"
+        else:
+            api_value = f"{r['by_api_return']:,}"
+
+        st.write("Estimated credit cost for the requested query (two methods):")
         col1, col2 = st.columns(2)
         with col1:
-            st.metric(label='Total Cost', value=f"{st.session_state['cost']}")
+            st.metric(label="By API (tiled preview)", value=api_value)
+            st.caption(
+                f"{r['tiles']} tiles · {r['tiles_with_coverage']} covered · {r['tiles_failed']} failed"
+            )
         with col2:
-            # st.metric(label='Remaining Credits', value=f"{st.session_state['remaining_credits']}")
-            st.write("Remaining Credits: To be implemented")
-        st.session_state.pop('cost')
+            st.metric(label="By Area (legacy)", value=f"{r['by_area']:,}")
+            st.caption("Original area-based estimate")
+
+        if r['tiles_failed']:
+            st.warning(
+                f"{r['tiles_failed']} of {r['tiles']} tiles returned no coverage or errored "
+                "and were counted as 0 credits, so the API figure may be an underestimate."
+            )
+        st.session_state.pop('result')
+
+    @staticmethod
+    def run_estimation(req):
+        """Run both estimators for a pending request, rendering a progress bar.
+
+        Stores the combined result (by_area + by_api_return + tile counts) in
+        ``st.session_state['result']`` for the outcome dialog to display.
+        """
+        progress = st.progress(0.0, text="Querying Nearmap preview API…")
+
+        def cb(done, total, total_cost, failed):
+            frac = (done / total) if total else 1.0
+            progress.progress(
+                frac,
+                text=f"Tile {done}/{total} · {total_cost:,} credits · {failed} failed",
+            )
+
+        try:
+            st.session_state['result'] = estimate_cost(
+                st.session_state.geodata,
+                req['resources'],
+                req['api_key'],
+                since=req['since'],
+                until=req['until'],
+                dates_single=req['dates'],
+                progress_cb=cb,
+            )
+        except Exception as e:
+            st.session_state['latestErrorMessage'] = str(e)
+            OtherHelpers.seeErrorModal()
+        finally:
+            progress.empty()
 
     @staticmethod
     @st.dialog("Error", width="small", dismissible=True, on_dismiss="ignore")
@@ -205,57 +262,58 @@ with left:
             elif not st.session_state.geodata_ready:
                 st.session_state['latestErrorMessage'] = "Either upload a geojson or select the extent on the map."
                 OtherHelpers.seeErrorModal()
-            else: 
-                # All validations passed, proceed with API request
+            else:
+                # All validations passed. Tile the AOI locally first (no API calls)
+                # so very large jobs can be gated before spending time (caveat E).
                 try:
-                    with st.spinner("Waiting for API response..."):
-                        # Initialize helper with user inputs
-                        helper = NearMapHelper(api_key, str(since), str(until), ', '.join(selected_resources), st.session_state.dates_single)
-                        # Make API request with the selected area
-                        response = helper.get_transaction_content(st.session_state.geodata['geometry'])
-                        # Extract cost estimate from response
-                        cost = helper.get_cost_estimate(response)
-                        time.sleep(3)  # Brief delay for user experience
-                        st.session_state['cost'] = cost  # Store cost in session state
-                        
+                    n_tiles = count_tiles(st.session_state.geodata['geometry'])
                 except Exception as e:
-                    # Handle API errors with fallback calculation
-                    if "INVALID_AREA" in str(e):
-                        # Fallback: Calculate cost manually when API returns invalid area error
-                        total_cost = 0  # Initialize total cost counter
-                        ai_counter = 0  # Counter for AI packs (max 7)
-                        # Calculate area in square meters
-                        area_sqm = BoxDrawer.estimate_area(st.session_state.geodata)
-                        all_resources = NearMapHelper.get_all_resources()['all_tuples']
-                        
-                        # Calculate cost for each selected resource
-                        for resource in selected_resources:
-                            resource_object = all_resources[resource]
-                            namespace = resource.split(":")[0]  # Extract namespace (raster, aiPacks, etc.)
-                            # Select appropriate cost based on date preference
-                            unit_cost = resource_object['Credits (single survey)'] if st.session_state.dates_single == "single" else resource_object['Credits (all survey data)']
-                            
-                            # Apply cost calculation based on resource type
-                            if (namespace != "aiPacks"):
-                                # Standard cost calculation for non-AI resources
-                                total_cost += round(unit_cost*area_sqm/1000)
-                            elif (namespace == "aiPacks" and ai_counter < 7):
-                                # AI packs limited to 7 maximum
-                                ai_counter += 1
-                                total_cost += round(unit_cost*area_sqm/1000)
-                            else:
-                                # Skip additional AI packs beyond limit
-                                pass
+                    st.session_state['latestErrorMessage'] = f"Could not read the drawn/uploaded area: {e}"
+                    OtherHelpers.seeErrorModal()
+                    n_tiles = None
 
-                        st.session_state['cost'] = total_cost
-                    else:
-                        # Handle other API errors
-                        st.session_state['latestErrorMessage'] = str(e)
-                        OtherHelpers.seeErrorModal()
+                if n_tiles is not None and n_tiles > TILE_HARD_CAP:
+                    st.session_state['latestErrorMessage'] = (
+                        f"This area tiles into {n_tiles:,} API calls (cap {TILE_HARD_CAP:,}). "
+                        "Please draw or upload a smaller area."
+                    )
+                    OtherHelpers.seeErrorModal()
+                elif n_tiles is not None:
+                    # Stash the request; the handler below runs it (immediately if
+                    # small, or after confirmation if it needs many calls).
+                    st.session_state['pending_request'] = {
+                        'api_key': api_key,
+                        'resources': list(selected_resources),
+                        'since': str(since),
+                        'until': str(until),
+                        'dates': st.session_state.dates_single,
+                        'n_tiles': n_tiles,
+                        'auto': n_tiles <= TILE_WARN_THRESHOLD,
+                    }
     with button_col2:
         # Secondary button to view the cost table
         if st.button("See Cost Table", type="secondary", help="See the cost table", icon="📊"):
             OtherHelpers.seeCostTable()
+
+    # Run a pending API estimation. Small jobs run immediately; large ones (many
+    # tiles = many preview calls) ask for confirmation first (caveat E).
+    if 'pending_request' in st.session_state:
+        req = st.session_state['pending_request']
+        if req.get('auto'):
+            st.session_state.pop('pending_request', None)
+            OtherHelpers.run_estimation(req)
+        else:
+            est_min = req['n_tiles'] * SECONDS_PER_TILE / 60
+            st.warning(
+                f"This area tiles into {req['n_tiles']:,} preview API calls "
+                f"(~{est_min:.1f} min). Proceed?"
+            )
+            confirm_col1, confirm_col2 = st.columns(2)
+            if confirm_col1.button("Proceed", type="primary", icon="✅"):
+                st.session_state.pop('pending_request', None)
+                OtherHelpers.run_estimation(req)
+            if confirm_col2.button("Cancel", icon="✖️"):
+                st.session_state.pop('pending_request', None)
 
 
 with right:
@@ -292,5 +350,5 @@ with right:
             
 # Display Results
 # Show cost estimation results if available in session state
-if ('cost' in st.session_state):
+if ('result' in st.session_state):
     OtherHelpers.seeResultModal()

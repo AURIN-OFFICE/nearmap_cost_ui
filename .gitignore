@@ -1,3 +1,33 @@
+# Python bytecode / caches
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+# (.venv is uv-managed and disposable; pyproject.toml, uv.lock and
+#  .python-version ARE committed and must NOT be ignored)
+.venv/
+venv/
+env/
+ENV/
+
+# Test / type / lint caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Secrets & local config
+.env
 .streamlit/secrets.toml
+
+# Generated live-validation report (offline REPORT.md is committed; the live one is not)
+cost_estimation/validation/LIVE_REPORT.md
+
+# IDE
 .vscode/launch.json
-__pycache__/map_helper.cpython-312.pyc
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
