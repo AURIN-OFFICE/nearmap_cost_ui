@@ -22,7 +22,7 @@ ENV/
 .streamlit/secrets.toml
 
 # Generated live-validation report (offline REPORT.md is committed; the live one is not)
-cost_estimation/validation/LIVE_REPORT.md
+api_cost_estimation/validation/LIVE_REPORT.md
 
 # IDE
 .vscode/launch.json

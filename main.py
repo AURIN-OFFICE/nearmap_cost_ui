@@ -8,7 +8,7 @@ from nearmap_helper import NearMapHelper
 from folium.plugins import Draw
 import json
 import time
-from cost_estimation.estimators import estimate_cost, count_tiles
+from api_cost_estimation.estimators import estimate_cost, count_tiles
 
 # Tiling thresholds for the API-based ("by_api_return") estimate (see caveat E):
 TILE_WARN_THRESHOLD = 50   # confirm before running more than this many preview calls
@@ -20,7 +20,7 @@ SECONDS_PER_TILE = 0.5     # inter-call sleep; used only to estimate wall-clock 
 # Sets up the main page configuration for the Nearmap Cost Estimator application
 st.set_page_config(
     page_title="Nearmap Cost Estimator", 
-    page_icon=":money:", 
+    page_icon="💰",
     layout="wide",
     initial_sidebar_state="collapsed"  # Collapses sidebar if present to save space
 )
@@ -92,11 +92,17 @@ class OtherHelpers:
         from the session state.
         """
         r = st.session_state['result']
+        covered = r['tiles_with_coverage']
+        no_coverage = r['tiles_no_coverage']
+        errored = r['tiles_errored']
 
-        # Format the API figure, flagging undercount when some tiles failed (caveat A).
-        if r['tiles'] and r['tiles_failed'] >= r['tiles']:
+        # Only show ">=" when tiles ERRORED for a non-coverage reason (timeout, 5xx,
+        # rate-limit, ...) — those could hide real cost. 404 "no coverage" tiles
+        # (ocean / outside the date window) are genuinely $0, so they do NOT make the
+        # figure a lower bound.
+        if errored and covered == 0:
             api_value = "API error"
-        elif r['tiles_failed']:
+        elif errored:
             api_value = f"≥ {r['by_api_return']:,}"
         else:
             api_value = f"{r['by_api_return']:,}"
@@ -106,16 +112,33 @@ class OtherHelpers:
         with col1:
             st.metric(label="By API (tiled preview)", value=api_value)
             st.caption(
-                f"{r['tiles']} tiles · {r['tiles_with_coverage']} covered · {r['tiles_failed']} failed"
+                f"{r['tiles']} tiles · {covered} covered · {no_coverage} no coverage · {errored} errored"
             )
         with col2:
             st.metric(label="By Area (legacy)", value=f"{r['by_area']:,}")
             st.caption("Original area-based estimate")
 
-        if r['tiles_failed']:
-            st.warning(
-                f"{r['tiles_failed']} of {r['tiles']} tiles returned no coverage or errored "
-                "and were counted as 0 credits, so the API figure may be an underestimate."
+        if errored:
+            detail = r.get('first_error')
+            if covered == 0:
+                msg = (
+                    f"All {r['tiles']} tiles errored, so no cost could be computed. This is "
+                    "usually a bad/over-long request (e.g. an unsupported resource in the "
+                    "selection) or an auth/rate-limit issue — not random failures."
+                )
+            else:
+                msg = (
+                    f"Showing ≥ because {errored} of {r['tiles']} tiles errored and were "
+                    "counted as 0 — the true cost may be higher. Re-submit to retry."
+                )
+            if detail:
+                msg += f"\n\nFirst error returned by the API: `{detail}`"
+            st.warning(msg)
+        elif no_coverage:
+            st.info(
+                f"{no_coverage} of {r['tiles']} tiles had no coverage (e.g. ocean or "
+                "outside the date range) and are correctly billed at 0 credits — "
+                "this figure is exact."
             )
         st.session_state.pop('result')
 
@@ -128,11 +151,11 @@ class OtherHelpers:
         """
         progress = st.progress(0.0, text="Querying Nearmap preview API…")
 
-        def cb(done, total, total_cost, failed):
+        def cb(done, total, total_cost, skipped):
             frac = (done / total) if total else 1.0
             progress.progress(
                 frac,
-                text=f"Tile {done}/{total} · {total_cost:,} credits · {failed} failed",
+                text=f"Tile {done}/{total} · {total_cost:,} credits · {skipped} skipped",
             )
 
         try:

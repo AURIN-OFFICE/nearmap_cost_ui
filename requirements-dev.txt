@@ -1,9 +1,9 @@
-# Development / test dependencies for the cost_estimation validation harness.
+# Development / test dependencies for the api_cost_estimation validation harness.
 #
 # No NEW runtime dependencies were added for the by_api_return estimator: it reuses
 # shapely + pyproj (already in requirements.txt). The ../nearmap tiling logic was
 # ported GDAL-free, so geopandas/fiona are NOT required here.
 -r requirements.txt
 
-# Offline validation suite (cost_estimation/validation/test_offline.py)
+# Offline validation suite (api_cost_estimation/validation/test_offline.py)
 pytest>=8.0

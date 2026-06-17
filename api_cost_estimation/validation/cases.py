@@ -14,15 +14,15 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 _VALIDATION_DIR = Path(__file__).resolve().parent
-_PKG_DIR = _VALIDATION_DIR.parent              # cost_estimation/
+_PKG_DIR = _VALIDATION_DIR.parent              # api_cost_estimation/
 _REPO_ROOT = _PKG_DIR.parent                   # repo root
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 from shapely.geometry import mapping  # noqa: E402
 
-from cost_estimation import by_area as _by_area  # noqa: E402
-from cost_estimation.coverage_fetcher import CoverageFetcher  # noqa: E402
+from api_cost_estimation import by_area as _by_area  # noqa: E402
+from api_cost_estimation.coverage_fetcher import CoverageFetcher  # noqa: E402
 from nearmap_helper import NearMapHelper  # noqa: E402
 
 DATA_DIR = _PKG_DIR / "data"

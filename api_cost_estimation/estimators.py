@@ -7,9 +7,10 @@ Produces two estimates for the same AOI + resource selection:
                       Nearmap Coverage API (the ../nearmap method, see coverage_fetcher.py).
 
 Both rely on the same Nearmap API key entered in the UI. ``by_api_return`` makes one
-preview call per tile; tiles that error out (e.g. 404 ocean) are counted as failed
-and contribute 0, so the returned total is reported alongside ``tiles_failed`` to
-avoid presenting a silently-low figure as authoritative.
+preview call per tile. Skipped tiles are split by reason: ``tiles_no_coverage`` (HTTP
+404 SURVEYS_NOT_FOUND — ocean / outside the date window, genuinely $0) vs
+``tiles_errored`` (timeout / 5xx / 429 / 400 — could hide real cost). The UI only
+treats the total as a lower bound (``≥``) when ``tiles_errored`` > 0.
 """
 
 from __future__ import annotations
@@ -44,7 +45,8 @@ def estimate_by_api(
 ) -> Dict:
     """Tile the AOI and sum preview ``costOfTransaction`` across tiles.
 
-    Returns a dict with: total, tiles, tiles_with_coverage, tiles_failed, plan.
+    Returns a dict with: total, tiles, tiles_with_coverage, tiles_no_coverage,
+    tiles_errored, plan.
     """
     fetcher = CoverageFetcher(api_key=api_key, max_area_sqm=max_area_sqm)
     unique_tiles, tile_to_sources, _ = fetcher.generate_tiles(geometry)
@@ -65,7 +67,9 @@ def estimate_by_api(
         "total": summary["total_estimated_cost_credits"],
         "tiles": summary["unique_tiles"],
         "tiles_with_coverage": summary["tiles_with_coverage"],
-        "tiles_failed": summary["tiles_failed"],
+        "tiles_no_coverage": summary["tiles_no_coverage"],
+        "tiles_errored": summary["tiles_errored"],
+        "first_error": summary.get("first_error"),
         "plan": plan,
     }
 
@@ -91,8 +95,8 @@ def estimate_cost(
         dates_single: "single" or "all".
 
     Returns dict:
-        by_area, by_api_return, tiles, tiles_with_coverage, tiles_failed,
-        area_sqm, plan.
+        by_area, by_api_return, tiles, tiles_with_coverage, tiles_no_coverage,
+        tiles_errored, area_sqm, plan.
     """
     geometry = geojson_feature.get("geometry", geojson_feature)
 
@@ -116,7 +120,9 @@ def estimate_cost(
         "by_api_return": api["total"],
         "tiles": api["tiles"],
         "tiles_with_coverage": api["tiles_with_coverage"],
-        "tiles_failed": api["tiles_failed"],
+        "tiles_no_coverage": api["tiles_no_coverage"],
+        "tiles_errored": api["tiles_errored"],
+        "first_error": api.get("first_error"),
         "area_sqm": area_sqm,
         "plan": api["plan"],
     }

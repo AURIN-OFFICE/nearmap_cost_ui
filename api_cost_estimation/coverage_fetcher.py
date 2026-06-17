@@ -309,14 +309,23 @@ class CoverageFetcher:
     ) -> Dict:
         """Query coverage for pre-tiled polygons and build a coverage plan.
 
-        On a per-tile error (e.g. 404 SURVEYS_NOT_FOUND for ocean/uncovered tiles),
-        the tile is skipped and counted as failed — it contributes 0 to the total.
-        ``progress_cb(done, total, total_cost, failed)`` is called after each tile so
-        the UI can render a progress bar.
+        Per-tile outcomes are tracked separately:
+        - covered: the call returned a cost (added to the total).
+        - no_coverage: HTTP 404 SURVEYS_NOT_FOUND (ocean / outside coverage or the
+          date window). Nearmap charges nothing for these, so a 0 here is the CORRECT
+          price — NOT an undercount.
+        - errored: any other failure (timeout, 5xx, 429, complex-polygon 400, ...).
+          These contribute 0 but *might* hide real cost, so the caller should treat
+          the total as a lower bound when errored > 0.
+
+        ``progress_cb(done, total, total_cost, skipped)`` is called after each tile
+        (skipped = no_coverage + errored) so the UI can render a progress bar.
         """
         tile_coverage_data: List[Dict] = []
         total_cost = 0
-        failed = 0
+        no_coverage = 0
+        errored = 0
+        first_error = None  # first non-404 failure, surfaced to aid diagnosis
         total = len(unique_tiles)
 
         for idx, tile in enumerate(unique_tiles):
@@ -333,11 +342,25 @@ class CoverageFetcher:
                 }
                 tile_coverage_data.append(tile_data)
                 total_cost += coverage.get("costOfTransaction", 0)
-            except Exception:
-                failed += 1
+            except requests.exceptions.HTTPError as e:
+                # 404 = no surveys for this tile -> genuinely $0, not an undercount.
+                if e.response is not None and e.response.status_code == 404:
+                    no_coverage += 1
+                else:
+                    errored += 1
+                    if first_error is None:
+                        if e.response is not None:
+                            body = " ".join(e.response.text.split())[:300]
+                            first_error = f"HTTP {e.response.status_code} {body}".strip()
+                        else:
+                            first_error = f"{type(e).__name__}: {e}"
+            except Exception as e:
+                errored += 1
+                if first_error is None:
+                    first_error = f"{type(e).__name__}: {e}"
             finally:
                 if progress_cb:
-                    progress_cb(idx + 1, total, total_cost, failed)
+                    progress_cb(idx + 1, total, total_cost, no_coverage + errored)
                 if sleep:
                     time.sleep(sleep)
 
@@ -353,7 +376,9 @@ class CoverageFetcher:
             "summary": {
                 "unique_tiles": total,
                 "tiles_with_coverage": len(tile_coverage_data),
-                "tiles_failed": failed,
+                "tiles_no_coverage": no_coverage,
+                "tiles_errored": errored,
+                "first_error": first_error,
                 "total_estimated_cost_credits": total_cost,
             },
             "tiles": tile_coverage_data,

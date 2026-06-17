@@ -13,12 +13,14 @@ Checks performed:
   B. Mixed-resource sum (caveat D) - on a tiny 1-tile AOI, confirm a combined
      ``raster:Vert,aiPacks:building`` call costs ~= the sum of the two separate calls
      (extends T4, which only covered AI packs).
-  C. Multi-pack cap (caveat C) - on a tiny AOI, compare by_area (caps at 7 packs)
-     against the live by_api_return for N packs, showing the divergence directly.
+  C. AI-pack bundle - on a tiny AOI, confirm both by_area and the live by_api_return
+     cap at the all-packs price for >7 packs (35 = 7x5); they should agree, not diverge.
+  D. Multi-survey bundle - on a tiny AOI, confirm dates=all costs ~1.5x dates=single
+     (sublinear; matches T7 and the 1.5x all-survey rate column).
 
 Run:
-  python -m cost_estimation.validation.run_live_validation
-  python -m cost_estimation.validation.run_live_validation --api-key XXXX --aoi <path>
+  python -m api_cost_estimation.validation.run_live_validation
+  python -m api_cost_estimation.validation.run_live_validation --api-key XXXX --aoi <path>
 """
 
 from __future__ import annotations
@@ -28,8 +30,8 @@ import os
 import sys
 from pathlib import Path
 
-from cost_estimation.by_area import estimate_by_area
-from cost_estimation.estimators import estimate_by_api
+from api_cost_estimation.by_area import estimate_by_area
+from api_cost_estimation.estimators import estimate_by_api
 
 from . import cases
 
@@ -40,9 +42,9 @@ TINY_AOI = {
     "type": "Polygon",
     "coordinates": [[
         [138.600, -34.920],
-        [138.601, -34.920],
-        [138.601, -34.919],
-        [138.600, -34.919],
+        [138.605, -34.920],
+        [138.605, -34.915],
+        [138.600, -34.915],
         [138.600, -34.920],
     ]],
 }
@@ -83,7 +85,7 @@ def check_drift(key, aoi_path, sleep, log):
     log(f"|---|--:|--:|--:|")
     log(f"| credits | {cached_total:,} | {live:,} | {drift:+.2f}% |")
     log(f"| tiles covered | - | {res['tiles_with_coverage']}/{res['tiles']} "
-        f"({res['tiles_failed']} failed) | |")
+        f"({res['tiles_no_coverage']} no-coverage, {res['tiles_errored']} errored) | |")
 
 
 def check_mixed(key, sleep, log):
@@ -101,20 +103,44 @@ def check_mixed(key, sleep, log):
 
 
 def check_multipack(key, sleep, log):
-    log("\n## C. Multi-pack cap divergence (caveat C)\n")
-    ai_keys = [k for k in cases.RATE_TABLE if k.startswith("aiPacks:")]
-    log("| AI packs | by_area | by_api_return (live) | ratio |")
+    log("\n## C. AI-pack bundle — >7 packs cap at the all-packs price\n")
+    ai_keys = sorted(k for k in cases.RATE_TABLE if k.startswith("aiPacks:"))
+    # Probe each pack alone; keep the ones this account can actually price (entitlements).
+    accessible = []
+    for k in ai_keys:
+        api = _run(TINY_AOI, [k], key, sleep)
+        if api["total"] > 0 and api["tiles_errored"] == 0:
+            accessible.append(k)
+    unavailable = [k.split(":", 1)[1] for k in ai_keys if k not in accessible]
+    log(f"Accessible AI packs for this account: **{len(accessible)}/{len(ai_keys)}** "
+        f"(unavailable: {', '.join(unavailable) or 'none'}). That gap is the entitlements "
+        "point — by_area would price all 16 regardless.\n")
+    if len(accessible) < 8:
+        log("Fewer than 8 accessible packs, so the 7-pack cap can't be exercised live here "
+            "(the offline cost-table + by_area tests cover it instead).\n")
+        return
+    log("| accessible AI packs | by_area | by_api_return (live) | ratio |")
     log("|--:|--:|--:|--:|")
-    for n in [1, 7, 8, 16]:
-        if n > len(ai_keys):
-            break
-        selected = ai_keys[:n]
+    for n in sorted({1, 7, 8, len(accessible)}):
+        selected = accessible[:n]
         api = _run(TINY_AOI, selected, key, sleep)
         ba = estimate_by_area({"type": "Feature", "geometry": TINY_AOI}, selected, "single")
         ratio = ba / api["total"] if api["total"] else float("nan")
         log(f"| {n} | {ba:,} | {api['total']:,} | {ratio:.3f} |")
-    log("\n(by_area plateaus after 7 packs; by_api_return keeps growing — the cap-at-7 "
-        "under-estimate, now confirmed against the live API.)")
+    log("\n(by_api_return should flatten from 7 packs on — 8+ accessible packs cost the same "
+        "as 7, the all-packs bundle cap. by_area caps at 7 too, so ratios stay ~flat.)")
+
+
+def check_dates(key, sleep, log):
+    log("\n## D. Multi-survey bundle — dates=all ≈ 1.5x single\n")
+    single = estimate_by_api(TINY_AOI, ["aiPacks:building"], key, dates="single", sleep=sleep)["total"]
+    all_d = estimate_by_api(TINY_AOI, ["aiPacks:building"], key, dates="all", sleep=sleep)["total"]
+    ratio = all_d / single if single else float("nan")
+    log("| dates=single | dates=all | ratio |")
+    log("|--:|--:|--:|")
+    log(f"| {single:,} | {all_d:,} | {ratio:.3f} |")
+    log("\n(Expect ≈ 1.5 — the multi-survey bundle (sublinear: ~1.5x regardless of survey "
+        "count, per T7). by_area uses the all-survey rate column (1.5x), so they agree.)")
 
 
 def main():
@@ -135,7 +161,11 @@ def main():
     out_lines = []
 
     def log(msg=""):
-        print(msg)
+        try:
+            print(msg)
+        except UnicodeEncodeError:
+            # Windows consoles default to cp1252; keep unicode in the file, fall back on stdout.
+            print(msg.encode("ascii", "replace").decode("ascii"))
         out_lines.append(msg)
 
     log("# Cost Estimation — Live Validation Report\n")
@@ -154,6 +184,10 @@ def main():
         check_multipack(key, args.sleep, log)
     except Exception as e:
         log(f"  C. multipack check failed: {e}")
+    try:
+        check_dates(key, args.sleep, log)
+    except Exception as e:
+        log(f"  D. dates check failed: {e}")
 
     OUT.write_text("\n".join(out_lines), encoding="utf-8")
     print(f"\nWrote {OUT}")
