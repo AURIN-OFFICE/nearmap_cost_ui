@@ -21,6 +21,44 @@ Feature = Dict[str, Any]  # Individual GeoJSON feature
 FeatureCollection = Dict[str, Any]  # Collection of GeoJSON features
 
 
+# --- coverage overlay (feature 2) --------------------------------------------
+
+# Colour each tile by its coverage outcome so the "$0 for ocean" effect is visible.
+STATUS_COLORS = {
+    "covered": "#2ca02c",      # green — billed
+    "no_coverage": "#9e9e9e",  # grey  — 404, genuinely $0 (ocean / outside dates)
+    "errored": "#d62728",      # red   — failed, counted as 0 (may hide cost)
+}
+
+
+def coverage_tile_tooltip(tile: Dict[str, Any]) -> str:
+    """Hover text for one tile in the coverage overlay."""
+    status = tile.get("status", "covered")
+    if status == "covered":
+        cost = (tile.get("coverage") or {}).get("costOfTransaction", 0)
+        return f"covered · {cost:,} credits"
+    if status == "no_coverage":
+        return "no coverage · 0 credits"
+    if status == "errored":
+        return "errored · counted as 0"
+    return status
+
+
+def coverage_bounds(tiles: List[Dict[str, Any]]) -> Optional[Tuple[float, float, float, float]]:
+    """Bounding box over all tile geometries as (min_lat, min_lon, max_lat, max_lon).
+
+    Returns None for an empty list. The lat/lon order matches folium's ``fit_bounds``.
+    """
+    geoms = [shape(t["geometry"]) for t in tiles if t.get("geometry")]
+    if not geoms:
+        return None
+    minx = min(g.bounds[0] for g in geoms)
+    miny = min(g.bounds[1] for g in geoms)
+    maxx = max(g.bounds[2] for g in geoms)
+    maxy = max(g.bounds[3] for g in geoms)
+    return (miny, minx, maxy, maxx)
+
+
 class BoxDrawer:
     """
     A comprehensive helper class for creating interactive maps with drawing capabilities.
@@ -96,7 +134,7 @@ class BoxDrawer:
                 "circle": False,    # Disable circle drawing
                 "circlemarker": False,  # Disable circle marker drawing
                 "marker": False,    # Disable marker placement
-                "rectangle": False, # Disable rectangle drawing
+                "rectangle": True,  # Enable rectangle / bounding-box drawing
             },
             edit_options={"edit": False, "remove": True},  # Allow removal but not editing
         ).add_to(m)
@@ -135,8 +173,43 @@ class BoxDrawer:
 
         # Render the map in Streamlit without capturing interactions
         st_folium(m, height=self.height, width=self.width, returned_objects=[])
-    
-    
+
+    def show_coverage(self, tiles: List[Dict[str, Any]], key: str = "coverage_map") -> None:
+        """Render a read-only map colouring each tile by coverage status (feature 2).
+
+        Args:
+            tiles: plan tile records, each with ``geometry``, ``status`` and (for
+                covered tiles) ``coverage.costOfTransaction``.
+            key: st_folium widget key (must be unique on the page).
+        """
+        if not tiles:
+            return
+
+        bounds = coverage_bounds(tiles)
+        center = self.center
+        if bounds:
+            center = ((bounds[0] + bounds[2]) / 2, (bounds[1] + bounds[3]) / 2)
+
+        m = folium.Map(
+            location=list(center),
+            zoom_start=self.zoom,
+            control_scale=self.control_scale,
+            prefer_canvas=self.prefer_canvas,
+        )
+        for tile in tiles:
+            color = STATUS_COLORS.get(tile.get("status", "covered"), STATUS_COLORS["no_coverage"])
+            folium.GeoJson(
+                tile["geometry"],
+                style_function=(lambda _f, c=color: {
+                    "color": c, "weight": 1, "fillColor": c, "fillOpacity": 0.45,
+                }),
+                tooltip=folium.Tooltip(coverage_tile_tooltip(tile)),
+            ).add_to(m)
+        if bounds:
+            m.fit_bounds([[bounds[0], bounds[1]], [bounds[2], bounds[3]]])
+
+        st_folium(m, height=self.height, width=self.width, returned_objects=[], key=key)
+
     def feature_collection(self) -> FeatureCollection:
         """
         Get all drawings made on the map as a GeoJSON FeatureCollection.

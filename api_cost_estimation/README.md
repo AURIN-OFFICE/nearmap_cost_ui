@@ -87,19 +87,21 @@ priced. A **`404` (no coverage) is not an error** — it's a genuine $0, so the 
 ## Layout
 
 ```
-api_cost_estimation/
+api_cost_estimation/    # the cost-estimation library (UI-free, no test fixtures)
   coverage_fetcher.py   # GDAL-free port of ../nearmap/utils/aipack_transaction.py
                         #   (CoverageFetcher: tiling + tx/poly preview; DataFetcher kept for fidelity)
   by_area.py            # the original manual estimator, preserved as-is
   estimators.py         # estimate_cost() / estimate_by_api() / count_tiles() — UI entry points
+
+tests/                  # all tests + the validation harness + cached fixtures (repo root)
+  test_offline.py       # offline assertions (no key, $0)
+  cases.py              # shared offline helpers
+  generate_report.py    # writes REPORT.md (the validation report)
+  run_live_validation.py
+  REPORT.md             # generated validation report (committed sample)
   data/
     aois/               # test AOIs copied from ../nearmap (adelaide_sample, perth)
     credit_plans/       # cached preview plans copied from ../nearmap (offline ground truth)
-  validation/           # offline + live validation harness
-    test_offline.py
-    generate_report.py  # writes REPORT.md (the validation report)
-    run_live_validation.py
-    REPORT.md           # generated validation report (committed sample)
 ```
 
 ## Port note (no GDAL)
@@ -121,12 +123,12 @@ Every call is `preview=true`, so **the UI never charges credits**.
 ## Validation
 
 The evidence + findings (with numbers) live in the generated
-**[validation/REPORT.md](validation/REPORT.md)**. To run the checks:
+**[../tests/REPORT.md](../tests/REPORT.md)**. To run the checks:
 
 ```bash
-uv run pytest api_cost_estimation/validation/test_offline.py -v   # offline, no key, $0
-uv run python -m api_cost_estimation.validation.generate_report   # regenerate REPORT.md
-NEARMAP_API_TOKEN=… uv run python -m api_cost_estimation.validation.run_live_validation  # live, preview-only, $0
+uv run pytest tests/test_offline.py -v              # offline, no key, $0
+uv run python -m tests.generate_report              # regenerate REPORT.md
+NEARMAP_API_TOKEN=… uv run python -m tests.run_live_validation  # live, preview-only, $0
 ```
 
 ## Caveats baked into the design
@@ -136,9 +138,11 @@ NEARMAP_API_TOKEN=… uv run python -m api_cost_estimation.validation.run_live_v
   tracked as `tiles_no_coverage`, and the figure stays **exact**. Any other failure
   (timeout, 5xx, 429, complex-polygon 400) is tracked as `tiles_errored`; only then does
   the UI show `≥ X` (or `API error` if nothing was priced), since those could hide cost.
-- **E — latency.** One preview call per tile (perth ≈ 508 calls ≈ a few minutes). The UI
-  gates jobs over `TILE_WARN_THRESHOLD` (50 tiles) behind a confirmation and refuses over
-  `TILE_HARD_CAP` (2000). The `0.5s` inter-call sleep is tunable (`sleep=` arg).
+- **E — latency.** One preview call per tile, fetched **concurrently** (default
+  `DEFAULT_MAX_WORKERS` = 8) with exponential backoff on `429` rate-limits, so perth's
+  ≈ 508 calls finish well under a minute. The UI gates jobs over `TILE_WARN_THRESHOLD`
+  (50 tiles) behind a confirmation and refuses over `TILE_HARD_CAP` (2000). Concurrency
+  (`max_workers=`) and the sequential-mode inter-call sleep (`sleep=`) are tunable.
 - **G — area engines differ.** `by_area` uses Albers; tiling uses UTM. So reported
   divergence mixes the billing-model difference with a small area-method delta.
 - Offline cached plans are single-pack / single-date, so the two bundles (>7-pack cap, 1.5×

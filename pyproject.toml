@@ -28,3 +28,8 @@ dev = [
 # from the repo root during `uv sync`.
 [tool.uv]
 package = false
+
+# All tests + the validation harness live under tests/ (a package, so the live/report
+# scripts run as `python -m tests.run_live_validation` / `python -m tests.generate_report`).
+[tool.pytest.ini_options]
+testpaths = ["tests"]

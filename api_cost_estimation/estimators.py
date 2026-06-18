@@ -18,7 +18,11 @@ from __future__ import annotations
 from typing import Callable, Dict, List, Optional
 
 from .by_area import estimate_area, estimate_by_area
-from .coverage_fetcher import CoverageFetcher, sum_plan_cost  # noqa: F401  (re-export)
+from .coverage_fetcher import (  # noqa: F401  (re-export)
+    DEFAULT_MAX_WORKERS,
+    CoverageFetcher,
+    sum_plan_cost,
+)
 
 DEFAULT_MAX_AREA_SQM = 300000
 DEFAULT_SLEEP = 0.5
@@ -41,6 +45,7 @@ def estimate_by_api(
     dates: str = "single",
     max_area_sqm: float = DEFAULT_MAX_AREA_SQM,
     sleep: float = DEFAULT_SLEEP,
+    max_workers: int = DEFAULT_MAX_WORKERS,
     progress_cb: Optional[Callable[[int, int, int, int], None]] = None,
 ) -> Dict:
     """Tile the AOI and sum preview ``costOfTransaction`` across tiles.
@@ -60,6 +65,7 @@ def estimate_by_api(
         until=until,
         dates=dates,
         sleep=sleep,
+        max_workers=max_workers,
         progress_cb=progress_cb,
     )
     summary = plan["summary"]
@@ -84,6 +90,7 @@ def estimate_cost(
     dates_single: str = "single",
     max_area_sqm: float = DEFAULT_MAX_AREA_SQM,
     sleep: float = DEFAULT_SLEEP,
+    max_workers: int = DEFAULT_MAX_WORKERS,
     progress_cb: Optional[Callable[[int, int, int, int], None]] = None,
 ) -> Dict:
     """Compute both estimates for one AOI.
@@ -95,8 +102,8 @@ def estimate_cost(
         dates_single: "single" or "all".
 
     Returns dict:
-        by_area, by_api_return, tiles, tiles_with_coverage, tiles_no_coverage,
-        tiles_errored, area_sqm, plan.
+        by_area, by_api_return, resources, tiles, tiles_with_coverage,
+        tiles_no_coverage, tiles_errored, area_sqm, plan.
     """
     geometry = geojson_feature.get("geometry", geojson_feature)
 
@@ -112,12 +119,14 @@ def estimate_cost(
         dates=dates_single,
         max_area_sqm=max_area_sqm,
         sleep=sleep,
+        max_workers=max_workers,
         progress_cb=progress_cb,
     )
 
     return {
         "by_area": by_area,
         "by_api_return": api["total"],
+        "resources": list(selected_resources),
         "tiles": api["tiles"],
         "tiles_with_coverage": api["tiles_with_coverage"],
         "tiles_no_coverage": api["tiles_no_coverage"],
@@ -126,3 +135,29 @@ def estimate_cost(
         "area_sqm": area_sqm,
         "plan": api["plan"],
     }
+
+
+# Scalar result fields that aggregate by summation across AOIs.
+_SUMMED_RESULT_KEYS = [
+    "by_area",
+    "by_api_return",
+    "tiles",
+    "tiles_with_coverage",
+    "tiles_no_coverage",
+    "tiles_errored",
+    "area_sqm",
+]
+
+
+def aggregate_results(per_aoi: List[Dict], selected_resources: List[str]) -> Dict:
+    """Combine per-AOI ``estimate_cost`` results into one grand-total result (feature 7).
+
+    The summed scalar keys match a single result's keys, so the outcome panel and quote
+    export work on the aggregate unchanged. ``first_error`` is the first non-null across
+    polygons; ``n_polygons`` records how many features (polygons) were estimated.
+    """
+    agg: Dict = {key: sum(r.get(key, 0) for r in per_aoi) for key in _SUMMED_RESULT_KEYS}
+    agg["resources"] = list(selected_resources)
+    agg["n_polygons"] = len(per_aoi)
+    agg["first_error"] = next((r.get("first_error") for r in per_aoi if r.get("first_error")), None)
+    return agg

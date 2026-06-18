@@ -19,8 +19,8 @@ Checks performed:
      (sublinear; matches T7 and the 1.5x all-survey rate column).
 
 Run:
-  python -m api_cost_estimation.validation.run_live_validation
-  python -m api_cost_estimation.validation.run_live_validation --api-key XXXX --aoi <path>
+  python -m tests.run_live_validation
+  python -m tests.run_live_validation --api-key XXXX --aoi <path>
 """
 
 from __future__ import annotations

@@ -13,9 +13,8 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Optional
 
-_VALIDATION_DIR = Path(__file__).resolve().parent
-_PKG_DIR = _VALIDATION_DIR.parent              # api_cost_estimation/
-_REPO_ROOT = _PKG_DIR.parent                   # repo root
+_TESTS_DIR = Path(__file__).resolve().parent   # tests/
+_REPO_ROOT = _TESTS_DIR.parent                  # repo root
 if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
@@ -25,7 +24,8 @@ from api_cost_estimation import by_area as _by_area  # noqa: E402
 from api_cost_estimation.coverage_fetcher import CoverageFetcher  # noqa: E402
 from nearmap_helper import NearMapHelper  # noqa: E402
 
-DATA_DIR = _PKG_DIR / "data"
+# Cached fixtures now live alongside the tests (moved out of the api_cost_estimation lib).
+DATA_DIR = _TESTS_DIR / "data"
 PLANS_DIR = DATA_DIR / "credit_plans"
 AOIS_DIR = DATA_DIR / "aois"
 

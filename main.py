@@ -3,17 +3,27 @@
 # based on geographic areas and selected resource types.
 import streamlit as st
 import pandas as pd
-from map_helper import BoxDrawer
+from map_helper import BoxDrawer, STATUS_COLORS
 from nearmap_helper import NearMapHelper
+import layer_config
 from folium.plugins import Draw
 import json
 import time
-from api_cost_estimation.estimators import estimate_cost, count_tiles
+from datetime import datetime, timezone
+import quote_export
+from api_cost_estimation.estimators import (
+    estimate_cost,
+    count_tiles,
+    aggregate_results,
+    DEFAULT_MAX_WORKERS,
+)
 
 # Tiling thresholds for the API-based ("by_api_return") estimate (see caveat E):
 TILE_WARN_THRESHOLD = 50   # confirm before running more than this many preview calls
 TILE_HARD_CAP = 2000       # refuse above this — ask the user to draw a smaller area
-SECONDS_PER_TILE = 0.5     # inter-call sleep; used only to estimate wall-clock time
+SECONDS_PER_TILE = 0.5     # approx wall-clock per preview call (network latency); the
+                           # tiles run concurrently, so the time estimate divides by the
+                           # worker-pool size (DEFAULT_MAX_WORKERS)
 
 
 # Configure the Streamlit Page
@@ -81,17 +91,47 @@ class OtherHelpers:
         st.write("The cost table displays the number of credits consumed for different content types per request or 1,000sqm whichever is less, based on whether you access a single capture or multiple captures.")
         st.dataframe(pd.DataFrame(json.load(open("cost_table.json"))))
 
+    @staticmethod
+    @st.dialog("Manage available layers", width="medium", dismissible=True, on_dismiss="ignore")
+    def manageLayersModal():
+        """View/edit which layers are selectable for this deployment (feature 3).
+
+        The tool is account-irrelevant, so this is a manual, deployment-level list
+        stored in ``layer_availability.json`` (which ships inside the Docker image).
+        Layers turned off appear greyed-out in the selection list. Edits persist to
+        that file; commit it (or mount a volume) to make changes permanent across
+        image rebuilds / a Streamlit Cloud redeploy.
+        """
+        st.write(
+            "Toggle which layers users can select. Layers turned off appear greyed-out "
+            "in the selection list. Saved to `layer_availability.json`."
+        )
+        current = layer_config.load_availability()
+        new_state = {
+            resource: st.checkbox(resource, value=current[resource], key=f"avail_{resource}")
+            for resource in layer_config.all_resource_keys()
+        }
+
+        def _close():
+            # Drop the dialog's widget state so it re-seeds from the file next time.
+            for resource in layer_config.all_resource_keys():
+                st.session_state.pop(f"avail_{resource}", None)
+            st.rerun()
+
+        col1, col2 = st.columns(2)
+        if col1.button("Save", type="primary", icon="💾", width="stretch"):
+            layer_config.save_availability(new_state)
+            _close()
+        if col2.button("Cancel", icon="✖️", width="stretch"):
+            _close()
+
 
     @staticmethod
-    @st.dialog("Estimation Outcome", width="medium", dismissible=True, on_dismiss="ignore")
-    def seeResultModal():
+    def render_outcome():
+        """Render the estimation outcome inline (not a modal) so it shows alongside the
+        coverage map (#3). Reads the persistent ``last_result`` / ``last_per_aoi``.
         """
-        Display the cost estimation results in a Streamlit dialog.
-        
-        Shows the total estimated cost and remaining credits (if available)
-        from the session state.
-        """
-        r = st.session_state['result']
+        r = st.session_state['last_result']
         covered = r['tiles_with_coverage']
         no_coverage = r['tiles_no_coverage']
         errored = r['tiles_errored']
@@ -107,7 +147,11 @@ class OtherHelpers:
         else:
             api_value = f"{r['by_api_return']:,}"
 
-        st.write("Estimated credit cost for the requested query (two methods):")
+        st.markdown("#### Estimation outcome")
+        # Show how many layers drove this estimate (feature 1).
+        resources = r.get('resources', [])
+        if resources:
+            st.caption(f"**{len(resources)}** layer(s) selected: {', '.join(resources)}")
         col1, col2 = st.columns(2)
         with col1:
             st.metric(label="By API (tiled preview)", value=api_value)
@@ -140,34 +184,71 @@ class OtherHelpers:
                 "outside the date range) and are correctly billed at 0 credits — "
                 "this figure is exact."
             )
-        st.session_state.pop('result')
+
+        # Per-polygon breakdown when several polygons were estimated (#4: it's one AOI
+        # with multiple polygons, not multiple AOIs); totals above are the grand totals.
+        per_poly = st.session_state.get('last_per_aoi', [])
+        if len(per_poly) > 1:
+            st.markdown(f"**Per-polygon breakdown** ({len(per_poly)} polygons)")
+            st.dataframe(
+                pd.DataFrame([
+                    {
+                        "Polygon": i + 1,
+                        "area (sqm)": round(p["area_sqm"]),
+                        "tiles": p["tiles"],
+                        "covered": p["tiles_with_coverage"],
+                        "by API": p["by_api_return"],
+                        "by area": p["by_area"],
+                    }
+                    for i, p in enumerate(per_poly)
+                ]),
+                hide_index=True,
+            )
 
     @staticmethod
     def run_estimation(req):
-        """Run both estimators for a pending request, rendering a progress bar.
+        """Estimate every polygon in the request, rendering a single progress bar (feature 7).
 
-        Stores the combined result (by_area + by_api_return + tile counts) in
-        ``st.session_state['result']`` for the outcome dialog to display.
+        Runs ``estimate_cost`` per feature in ``st.session_state.geodata_features`` and
+        persists the grand-total aggregate ('last_result', for the inline outcome panel +
+        export), 'last_per_aoi' (per-polygon table) and 'last_coverage_tiles' (overlay).
         """
+        features = st.session_state.geodata_features
+        grand_total = req['n_tiles']  # summed tile count across all features (from the gate)
         progress = st.progress(0.0, text="Querying Nearmap preview API…")
 
-        def cb(done, total, total_cost, skipped):
-            frac = (done / total) if total else 1.0
-            progress.progress(
-                frac,
-                text=f"Tile {done}/{total} · {total_cost:,} credits · {skipped} skipped",
-            )
-
         try:
-            st.session_state['result'] = estimate_cost(
-                st.session_state.geodata,
-                req['resources'],
-                req['api_key'],
-                since=req['since'],
-                until=req['until'],
-                dates_single=req['dates'],
-                progress_cb=cb,
-            )
+            per_aoi = []
+            base = 0  # tiles completed in earlier AOIs, for the overall progress fraction
+            for i, feature in enumerate(features):
+                def cb(done, total, total_cost, skipped, _base=base, _i=i):
+                    overall = (_base + done) / grand_total if grand_total else 1.0
+                    progress.progress(
+                        min(overall, 1.0),
+                        text=f"Polygon {_i + 1}/{len(features)} · tile {done}/{total} · {total_cost:,} credits",
+                    )
+
+                res = estimate_cost(
+                    feature,
+                    req['resources'],
+                    req['api_key'],
+                    since=req['since'],
+                    until=req['until'],
+                    dates_single=req['dates'],
+                    progress_cb=cb,
+                )
+                per_aoi.append(res)
+                base += res['tiles']
+
+            aggregate = aggregate_results(per_aoi, req['resources'])
+            aggregate['estimated_at'] = datetime.now(timezone.utc).isoformat()
+            # Persist for the inline outcome panel + per-polygon table, the coverage
+            # overlay (feature 2) and the quote export (feature 4).
+            st.session_state['last_result'] = aggregate
+            st.session_state['last_per_aoi'] = per_aoi
+            st.session_state['last_coverage_tiles'] = [
+                tile for r in per_aoi for tile in r['plan']['tiles']
+            ]
         except Exception as e:
             st.session_state['latestErrorMessage'] = str(e)
             OtherHelpers.seeErrorModal()
@@ -235,18 +316,53 @@ with left:
     
     # Resource Type Selection
     # Container for resource type checkboxes with scrollable area
-    box_resource = st.container(height=260, border=True)
+    box_resource = st.container(height=320, border=True)
     with box_resource:
         st.write("Select Resource Type(s):")
-        # Get all available resources and their cost information
+        # Resources grouped by namespace (raster / AI packs / true-ortho / impact) so the
+        # list is easier to navigate (#2).
         resources_object = NearMapHelper.get_all_resources()
-        resource_type = resources_object['all_tuples']  # Dictionary of resource:cost mappings
+        all_tuples = resources_object['all_tuples']  # full resource keys -> cost info
+        # Deployment-level availability (feature 3): layers marked unavailable are shown
+        # but disabled, so users can't order a pack this deployment hasn't enabled.
+        availability = layer_config.load_availability()
+        # A layer marked unavailable must not stay ticked (#8): clear its checkbox state
+        # BEFORE the widget is instantiated this run (it can't be modified afterwards).
+        for resource in all_tuples:
+            if not availability.get(resource, True) and st.session_state.get(resource):
+                st.session_state[resource] = False
         selected_resources = []  # List to store user-selected resources
-        
-        # Create checkboxes for each available resource type
-        for resource in resource_type:
-            if st.checkbox(resource, key=resource):
-                selected_resources.append(resource)
+
+        NAMESPACE_LABELS = {
+            "raster": "Raster",
+            "aiPacks": "AI packs",
+            "trueOrthoAiPacks": "True Ortho AI packs",
+            "aiImpactAssessment": "AI Impact Assessment",
+        }
+        # One collapsible group per namespace; the checkbox key stays the full resource
+        # id (e.g. "raster:Vert") while the label shows just the short name.
+        for namespace in resources_object['namespaces']:
+            keys = [f"{namespace}:{n}" for n in resources_object['resources'].get(namespace, [])]
+            keys = [k for k in keys if k in all_tuples]
+            if not keys:
+                continue
+            label = NAMESPACE_LABELS.get(namespace, namespace)
+            with st.expander(f"{label} ({len(keys)})", expanded=namespace in ("raster", "aiPacks")):
+                for resource in keys:
+                    is_available = availability.get(resource, True)
+                    checked = st.checkbox(
+                        resource.split(":", 1)[1],
+                        key=resource,
+                        disabled=not is_available,
+                        help=None if is_available else
+                        "Marked unavailable for this deployment — enable it via “Manage layers”.",
+                    )
+                    if is_available and checked:
+                        selected_resources.append(resource)
+
+    # Open the editor for the deployment's available-layers list (feature 3).
+    if st.button("⚙️ Manage layers", help="View / edit which layers are selectable"):
+        OtherHelpers.manageLayersModal()
     
     # Date Range Selection
     box_date = st.container(height="content", border=True)
@@ -286,10 +402,12 @@ with left:
                 st.session_state['latestErrorMessage'] = "Either upload a geojson or select the extent on the map."
                 OtherHelpers.seeErrorModal()
             else:
-                # All validations passed. Tile the AOI locally first (no API calls)
-                # so very large jobs can be gated before spending time (caveat E).
+                # All validations passed. Tile every AOI locally first (no API calls)
+                # so very large jobs are gated on the *combined* tile count (caveat E +
+                # feature 7: a batch can blow the cap even if each AOI is under it).
+                features = st.session_state.geodata_features
                 try:
-                    n_tiles = count_tiles(st.session_state.geodata['geometry'])
+                    n_tiles = sum(count_tiles(f['geometry']) for f in features)
                 except Exception as e:
                     st.session_state['latestErrorMessage'] = f"Could not read the drawn/uploaded area: {e}"
                     OtherHelpers.seeErrorModal()
@@ -297,8 +415,8 @@ with left:
 
                 if n_tiles is not None and n_tiles > TILE_HARD_CAP:
                     st.session_state['latestErrorMessage'] = (
-                        f"This area tiles into {n_tiles:,} API calls (cap {TILE_HARD_CAP:,}). "
-                        "Please draw or upload a smaller area."
+                        f"These {len(features)} polygon(s) tile into {n_tiles:,} API calls "
+                        f"(cap {TILE_HARD_CAP:,}). Please draw or upload smaller area(s)."
                     )
                     OtherHelpers.seeErrorModal()
                 elif n_tiles is not None:
@@ -311,6 +429,7 @@ with left:
                         'until': str(until),
                         'dates': st.session_state.dates_single,
                         'n_tiles': n_tiles,
+                        'n_polygons': len(features),
                         'auto': n_tiles <= TILE_WARN_THRESHOLD,
                     }
     with button_col2:
@@ -326,17 +445,34 @@ with left:
             st.session_state.pop('pending_request', None)
             OtherHelpers.run_estimation(req)
         else:
-            est_min = req['n_tiles'] * SECONDS_PER_TILE / 60
+            est_min = req['n_tiles'] * SECONDS_PER_TILE / DEFAULT_MAX_WORKERS / 60
             st.warning(
-                f"This area tiles into {req['n_tiles']:,} preview API calls "
-                f"(~{est_min:.1f} min). Proceed?"
+                f"{req.get('n_polygons', 1)} polygon(s) tile into {req['n_tiles']:,} preview "
+                f"API calls (~{est_min:.1f} min at {DEFAULT_MAX_WORKERS} parallel). Proceed?"
             )
             confirm_col1, confirm_col2 = st.columns(2)
-            if confirm_col1.button("Proceed", type="primary", icon="✅"):
+            if confirm_col1.button("Proceed", type="primary", icon="✅", width="stretch"):
                 st.session_state.pop('pending_request', None)
                 OtherHelpers.run_estimation(req)
-            if confirm_col2.button("Cancel", icon="✖️"):
+            if confirm_col2.button("Cancel", icon="✖️", width="stretch"):
                 st.session_state.pop('pending_request', None)
+
+    # Export the last estimation as an auditable quote (feature 4): CSV / JSON with a
+    # pricing snapshot + timestamp.
+    if 'last_result' in st.session_state:
+        quote = quote_export.build_quote(st.session_state['last_result'])
+        st.markdown("**Export last quote**")
+        export_col1, export_col2 = st.columns(2)
+        export_col1.download_button(
+            "⬇️ CSV", data=quote_export.quote_to_csv(quote),
+            file_name="nearmap_quote.csv", mime="text/csv", width="stretch",
+            help="Resources, area, tiles, cost, pricing snapshot + timestamp",
+        )
+        export_col2.download_button(
+            "⬇️ JSON", data=quote_export.quote_to_json(quote),
+            file_name="nearmap_quote.json", mime="application/json", width="stretch",
+            help="Same quote as machine-readable JSON",
+        )
 
 
 with right:
@@ -352,26 +488,51 @@ with right:
         geojson = uploaded_file.getvalue()
         if geojson and OtherHelpers.is_valid_json(geojson):
             # Valid GeoJSON uploaded
-            st.session_state.geodata_ready = True
             fc = json.loads(geojson)
-            st.session_state.geodata = fc["features"][0]  # Store first feature
-            drawer.show_geojson(fc)  # Display the GeoJSON on the map
-            st.success("GeoJSON successfully uploaded.")            
+            # Keep ALL features (feature 7: multi-AOI), not just the first one.
+            features = fc["features"] if fc.get("type") == "FeatureCollection" else [fc]
+            if features:
+                st.session_state.geodata_ready = True
+                st.session_state.geodata_features = features
+                drawer.show_geojson(fc)  # Display the GeoJSON on the map
+                st.success(f"GeoJSON uploaded — {len(features)} feature(s).")
+            else:
+                st.info("Upload a GeoJSON with at least one feature.")
         else:
             st.info("Upload a valid GeoJSON.")
     else:
         # No file uploaded, show interactive map
-        drawer.render()   
-        # Get any drawn features from the map
-        fc = drawer.last_feature_collection() or {"type": "FeatureCollection", "features": []}
+        drawer.render()
+        # Get ALL drawn features from the map (feature 7: estimate several at once).
+        fc = drawer.feature_collection()
         if fc["features"]:
-            # User has drawn on the map
+            # User has drawn one or more polygons
             st.session_state.geodata_ready = True
-            st.session_state.geodata = fc["features"][0]  # Store first drawn feature
+            st.session_state.geodata_features = fc["features"]
         else:
-            st.info("Draw a rectangle on the map to see the GeoJSON here.")
-            
-# Display Results
-# Show cost estimation results if available in session state
-if ('result' in st.session_state):
-    OtherHelpers.seeResultModal()
+            # Nothing drawn / geometry cleared: hide the coverage overlay so it doesn't
+            # linger on a removed AOI (#3). The last result is kept so the user can still
+            # reopen / export the previous estimate.
+            st.session_state.geodata_ready = False
+            st.session_state.pop('last_coverage_tiles', None)
+
+    # After an estimation, show the outcome panel and the coverage map together (#3):
+    # the numbers and the colour-coded tiles for the same run, inline in this pane. No
+    # modal, so there's nothing to flash away and nothing to "reopen".
+    coverage_tiles = st.session_state.get('last_coverage_tiles')
+    if coverage_tiles:
+        OtherHelpers.render_outcome()
+        st.markdown("**Coverage result**")
+        legend = " &nbsp;&nbsp; ".join(
+            f"<span style='color:{STATUS_COLORS[k]};font-size:1.2em'>■</span> {label}"
+            for k, label in (
+                ("covered", "covered"),
+                ("no_coverage", "no coverage ($0)"),
+                ("errored", "errored"),
+            )
+        )
+        st.markdown(legend, unsafe_allow_html=True)
+        BoxDrawer(height=500).show_coverage(coverage_tiles)
+
+# The estimation outcome now renders inline in the right pane (above the coverage map),
+# so the numbers and the map are visible at the same time (#3) — no modal needed.

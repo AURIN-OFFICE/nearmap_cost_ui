@@ -144,13 +144,196 @@ def test_404_counts_as_no_coverage_not_error():
     assert summary["total_estimated_cost_credits"] == 10
 
 
+def test_all_tiles_recorded_with_status_and_geometry():
+    """Every tile (covered, no_coverage, errored) is recorded with status + geometry.
+
+    The coverage-overlay / export / multi-AOI features need the geometry of skipped
+    tiles, which the original code discarded (only covered tiles were appended). The
+    per-status counts in the summary must still be derived correctly.
+    """
+    import requests
+    from shapely.geometry import box
+
+    from api_cost_estimation.coverage_fetcher import CoverageFetcher
+
+    fetcher = CoverageFetcher(api_key="x")
+    tiles = [
+        box(138.600, -34.920, 138.601, -34.919),
+        box(138.601, -34.920, 138.602, -34.919),
+        box(138.602, -34.920, 138.603, -34.919),
+    ]
+    sources = {0: [0], 1: [0], 2: [0]}
+
+    def fake_call(tile, resources, idx, **kw):
+        if idx == 0:  # covered
+            return {"costOfTransaction": 10, "surveys": [{}]}
+        resp = requests.Response()
+        resp.status_code = 404 if idx == 1 else 500  # 404 = no coverage, 500 = real error
+        raise requests.exceptions.HTTPError(response=resp)
+
+    fetcher.get_coverage_for_tile = fake_call
+    plan = fetcher.plan_coverage_for_tiles(tiles, sources, "aiPacks:building", sleep=0)
+
+    recorded = plan["tiles"]
+    assert len(recorded) == 3  # ALL tiles recorded, not just the covered one
+    assert [t["tile_id"] for t in recorded] == [0, 1, 2]  # ordered by tile_id
+    assert {t["tile_id"]: t["status"] for t in recorded} == {
+        0: "covered",
+        1: "no_coverage",
+        2: "errored",
+    }
+    for t in recorded:
+        assert t["geometry"]["type"] == "Polygon"  # geometry kept for every tile
+        assert "area_sqm" in t
+
+    # The covered tile keeps its coverage payload; aggregation is unaffected.
+    assert sum_plan_cost(plan) == 10
+    s = plan["summary"]
+    assert (s["tiles_with_coverage"], s["tiles_no_coverage"], s["tiles_errored"]) == (1, 1, 1)
+
+
+def test_estimate_cost_echoes_selected_resources(monkeypatch):
+    """estimate_cost returns the selected resources so the UI can show the layer count.
+
+    Mocks the network boundary (estimate_by_api); estimate_area / by_area run for real.
+    """
+    from api_cost_estimation import estimators
+
+    feature = {
+        "type": "Feature",
+        "geometry": {
+            "type": "Polygon",
+            "coordinates": [[
+                [138.60, -34.92], [138.61, -34.92],
+                [138.61, -34.91], [138.60, -34.91], [138.60, -34.92],
+            ]],
+        },
+    }
+    monkeypatch.setattr(
+        estimators,
+        "estimate_by_api",
+        lambda *a, **k: {
+            "total": 0, "tiles": 0, "tiles_with_coverage": 0,
+            "tiles_no_coverage": 0, "tiles_errored": 0, "first_error": None,
+            "plan": {"tiles": []},
+        },
+    )
+    result = estimators.estimate_cost(feature, ["raster:Vert", "aiPacks:building"], "key")
+    assert result["resources"] == ["raster:Vert", "aiPacks:building"]
+    assert "by_area" in result  # existing keys still present
+
+
+def test_aggregate_results_sums_totals_and_counts_aois():
+    """Multi-AOI: grand totals are the per-AOI sums; first_error is the first non-null."""
+    from api_cost_estimation import estimators
+
+    per_aoi = [
+        {"by_area": 100, "by_api_return": 90, "tiles": 5, "tiles_with_coverage": 4,
+         "tiles_no_coverage": 1, "tiles_errored": 0, "area_sqm": 1000.0, "first_error": None},
+        {"by_area": 50, "by_api_return": 40, "tiles": 3, "tiles_with_coverage": 2,
+         "tiles_no_coverage": 0, "tiles_errored": 1, "area_sqm": 500.0, "first_error": "HTTP 500 boom"},
+    ]
+    agg = estimators.aggregate_results(per_aoi, ["aiPacks:building"])
+    assert agg["by_api_return"] == 130
+    assert agg["by_area"] == 150
+    assert agg["tiles"] == 8
+    assert agg["tiles_with_coverage"] == 6
+    assert agg["tiles_no_coverage"] == 1
+    assert agg["tiles_errored"] == 1
+    assert agg["area_sqm"] == 1500.0
+    assert agg["n_polygons"] == 2
+    assert agg["resources"] == ["aiPacks:building"]
+    assert agg["first_error"] == "HTTP 500 boom"
+
+
+def test_aggregate_single_feature_matches_input():
+    """Regression: a one-feature batch aggregates to the same scalars as that feature."""
+    from api_cost_estimation import estimators
+
+    one = {"by_area": 10, "by_api_return": 8, "tiles": 1, "tiles_with_coverage": 1,
+           "tiles_no_coverage": 0, "tiles_errored": 0, "area_sqm": 100.0, "first_error": None}
+    agg = estimators.aggregate_results([one], ["raster:Vert"])
+    assert (agg["by_api_return"], agg["by_area"], agg["tiles"]) == (8, 10, 1)
+    assert agg["n_polygons"] == 1
+    assert agg["first_error"] is None
+
+
+def test_429_is_retried_then_succeeds():
+    """A 429 (rate limit) is retried with backoff (honouring Retry-After), not errored.
+
+    Replaces the old blanket inter-call sleep: concurrency is bounded and 429s back off.
+    Retry-After: 0 keeps the test instant.
+    """
+    import requests
+    from shapely.geometry import box
+
+    from api_cost_estimation.coverage_fetcher import CoverageFetcher
+
+    fetcher = CoverageFetcher(api_key="x")
+    calls = {"n": 0}
+
+    def fake_call(tile, resources, idx, **kw):
+        calls["n"] += 1
+        if calls["n"] <= 2:  # rate-limited twice, then succeeds
+            resp = requests.Response()
+            resp.status_code = 429
+            resp.headers["Retry-After"] = "0"
+            raise requests.exceptions.HTTPError(response=resp)
+        return {"costOfTransaction": 5, "surveys": [{}]}
+
+    fetcher.get_coverage_for_tile = fake_call
+    plan = fetcher.plan_coverage_for_tiles(
+        [box(138.600, -34.920, 138.601, -34.919)],
+        {0: [0]},
+        "aiPacks:building",
+        sleep=0,
+    )
+    s = plan["summary"]
+    assert calls["n"] == 3                       # 2 retries + the successful call
+    assert s["tiles_with_coverage"] == 1         # not counted as errored
+    assert s["tiles_errored"] == 0
+    assert s["total_estimated_cost_credits"] == 5
+
+
+def test_parallel_preserves_order_and_counts():
+    """With concurrency the plan tiles stay ordered by tile_id and counts are exact."""
+    import requests
+    from shapely.geometry import box
+
+    from api_cost_estimation.coverage_fetcher import CoverageFetcher
+
+    fetcher = CoverageFetcher(api_key="x")
+    n = 6
+    tiles = [box(138.6 + i * 0.001, -34.92, 138.6 + i * 0.001 + 0.0005, -34.919) for i in range(n)]
+    sources = {i: [0] for i in range(n)}
+
+    def fake_call(tile, resources, idx, **kw):
+        if idx % 3 == 0:  # 0,3 -> covered
+            return {"costOfTransaction": 10, "surveys": [{}]}
+        resp = requests.Response()
+        resp.status_code = 404 if idx % 3 == 1 else 500  # 1,4 -> no_coverage; 2,5 -> errored
+        raise requests.exceptions.HTTPError(response=resp)
+
+    fetcher.get_coverage_for_tile = fake_call
+    plan = fetcher.plan_coverage_for_tiles(
+        tiles, sources, "aiPacks:building", sleep=0, max_workers=4
+    )
+
+    assert [t["tile_id"] for t in plan["tiles"]] == list(range(n))  # ordered despite parallelism
+    s = plan["summary"]
+    assert s["tiles_with_coverage"] == 2
+    assert s["tiles_no_coverage"] == 2
+    assert s["tiles_errored"] == 2
+    assert s["total_estimated_cost_credits"] == 20
+
+
 # --- the two sublinear "bundles" (both modeled the same by by_area and the API) ---
 
 
 def _load_cost_table():
     import json
     from pathlib import Path
-    root = Path(__file__).resolve().parent.parent.parent
+    root = Path(__file__).resolve().parent.parent  # tests/ -> repo root
     return json.loads((root / "cost_table.json").read_text())
 
 

@@ -38,7 +38,7 @@ subscription can't order**, both common in real use (most AU study areas are coa
 access varies by plan).
 
 See [`api_cost_estimation/README.md`](api_cost_estimation/README.md) (design & why) and
-[`api_cost_estimation/validation/REPORT.md`](api_cost_estimation/validation/REPORT.md)
+[`tests/REPORT.md`](tests/REPORT.md)
 (evidence & numbers) for details.
 
 **Tooling (uv vs Docker):** Docker runs the deployed app from `requirements.txt` only (no
@@ -469,14 +469,14 @@ uv sync
 uv run streamlit run main.py --server.runOnSave true
 
 # Run the offline validation suite (no API key, no cost)
-uv run pytest api_cost_estimation/validation/test_offline.py -v
+uv run pytest tests/ -v
 ```
 
 With plain pip instead of uv:
 ```bash
 pip install -r requirements-dev.txt   # runtime + pytest
 streamlit run main.py --server.runOnSave true
-pytest api_cost_estimation/validation/test_offline.py -v
+pytest tests/ -v
 ```
 
 ## Support
