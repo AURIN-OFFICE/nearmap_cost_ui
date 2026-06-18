@@ -11,6 +11,41 @@ The Nearmap Cost Estimation UI provides an intuitive interface for:
 - **Real-time cost estimation** based on selected resources and area size
 - **Cost table reference** for understanding credit requirements
 
+## (NEW) Two cost estimates: `by_area` (legacy) + `by_api_return` (API)
+
+**Why:** the original estimate (`by_area`) computes cost locally as `rate × area`. It's a
+good approximation, but it can't see Nearmap's actual billing, so it **over-estimates**
+AOIs that include ocean/uncovered land and **invents a price for packs your subscription can't
+order** (the API rejects them). So the app now also computes **`by_api_return`**: it tiles the
+AOI and sums the real `preview=true` cost from Nearmap's Coverage API (the validated method
+from the sibling `nearmap` repo), which is the number Nearmap actually bills — so it's exact,
+always reflects current pricing (no hardcoded rate table to keep in sync), works at any AOI
+size, and reports how much of your area actually has coverage.
+
+**What's done:** a self-contained [`api_cost_estimation/`](api_cost_estimation/) module
+(tiling + per-tile preview, ported GDAL-free — **no new runtime dependencies**) plus an
+offline + live validation harness. The UI now shows **both figures side by side**; `by_area`
+is kept unchanged as a sanity check, with `by_api_return` as the trusted figure. All preview
+calls are free.
+
+**Test result:** offline suite **51 passed / 6 skipped**, and live API checks (preview-only, $0)
+confirm it — 0% price drift, both pricing bundles hold, and entitlements are enforced (15/16
+packs accessible on the test key). The payoff: **`by_api_return` is the *actual billed cost*.**
+On covered AOIs with packs you own it matches `by_area` to ~0.1% (just per-tile rounding), but
+it's the figure to trust because it's right where `by_area` quietly isn't — it won't
+**over-charge AOIs touching ocean/uncovered land (up to +33%)** or **quote packs your
+subscription can't order**, both common in real use (most AU study areas are coastal; pack
+access varies by plan).
+
+See [`api_cost_estimation/README.md`](api_cost_estimation/README.md) (design & why) and
+[`tests/REPORT.md`](tests/REPORT.md)
+(evidence & numbers) for details.
+
+**Tooling (uv vs Docker):** Docker runs the deployed app from `requirements.txt` only (no
+new deps were added). `uv` (`pyproject.toml` + `uv.lock`) is the local dev/test environment
+— used to run the validation harness and iterate locally. The estimator code runs in both;
+the validation scripts only ever run under `uv`.
+
 ## How to use the tool?
 
 ### Step 1: Setup
@@ -97,16 +132,20 @@ git clone <repository-url>
 cd nearmap_cost_ui
 ```
 
-2. Create a virtual environment:
-```bash
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-```
+2. Install dependencies.
 
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
+   **Recommended — [uv](https://github.com/astral-sh/uv)** (matches the sibling `nearmap` repo; reads `pyproject.toml` + `uv.lock`):
+   ```bash
+   uv sync
+   ```
+   This creates a `.venv` with the pinned runtime + dev (pytest) dependencies.
+
+   Or with plain pip + venv:
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
 
 ## Usage
 
@@ -130,7 +169,7 @@ docker-compose up --build
 
 1. Run the application:
 ```bash
-streamlit run main.py
+uv run streamlit run main.py    # or, with an activated venv: streamlit run main.py
 ```
 
 2. Open your browser and navigate to the provided local URL (typically `http://localhost:8501`)
@@ -315,14 +354,21 @@ The application is built using:
 
 ```
 nearmap_cost_ui/
-├── main.py              # Main Streamlit application
-├── map_helper.py        # Map drawing utilities and GeoJSON handling
-├── cost_table.json      # Cost table data with credit requirements
-├── logos/               # Application logos (AURIN and Nearmap)
-│   ├── aurin-logo-400-D0zkc36m.png
-│   └── Nearmap-logo.png
-├── requirements.txt     # Python dependencies
-└── README.md           # This documentation file
+├── main.py                # Main Streamlit application
+├── map_helper.py          # Map drawing utilities and GeoJSON handling
+├── nearmap_helper.py      # Nearmap API helper + resource/rate table
+├── cost_table.json        # Cost table data with credit requirements
+├── api_cost_estimation/       # Dual cost estimators + validation harness
+│   ├── coverage_fetcher.py  # GDAL-free port of ../nearmap tiling + preview
+│   ├── by_area.py           # original manual estimator (preserved as-is)
+│   ├── estimators.py        # estimate_cost / count_tiles — UI entry points
+│   ├── data/                # test AOIs + cached credit plans (from ../nearmap)
+│   └── validation/          # offline pytest + REPORT.md + live script
+├── pyproject.toml         # Project metadata + dependencies (uv source of truth)
+├── uv.lock                # Pinned dependency lockfile (uv)
+├── requirements.txt       # Runtime deps (used by Docker / Streamlit Cloud)
+├── requirements-dev.txt   # Dev deps (pytest) for pip users
+└── README.md              # This documentation file
 ```
 
 ## Dependencies
@@ -416,11 +462,21 @@ A: Estimates are based on official Nearmap pricing tables and should be accurate
 
 ### Development Setup
 ```bash
-# Install development dependencies
-pip install -r requirements.txt
+# Install runtime + dev (pytest) dependencies with uv
+uv sync
 
 # Run in development mode
+uv run streamlit run main.py --server.runOnSave true
+
+# Run the offline validation suite (no API key, no cost)
+uv run pytest tests/ -v
+```
+
+With plain pip instead of uv:
+```bash
+pip install -r requirements-dev.txt   # runtime + pytest
 streamlit run main.py --server.runOnSave true
+pytest tests/ -v
 ```
 
 ## Support

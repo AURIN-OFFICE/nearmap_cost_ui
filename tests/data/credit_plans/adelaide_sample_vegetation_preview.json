@@ -1,0 +1,2711 @@
+{
+  "metadata": {
+    "preview_mode": true,
+    "ai_pack": "vegetation",
+    "resource_type": "aiPacks:vegetation",
+    "geometry_file": "c:\\Documents\\programming\\nearmap\\data\\aois\\adelaide_sample_aoi.geojson",
+    "timestamp": "2026-05-29T13:41:33.321798",
+    "max_area_sqm": 300000,
+    "date_filter_since": null,
+    "date_filter_until": null,
+    "date_filter_mode": "single"
+  },
+  "summary": {
+    "input_features": 1,
+    "extracted_polygons": 1,
+    "total_tiles_generated": 42,
+    "unique_tiles": 42,
+    "tiles_with_coverage": 42,
+    "total_estimated_cost_credits": 60900
+  },
+  "tiles": [
+    {
+      "tile_id": 0,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.58000000,-34.94000000,138.58571429,-34.93500000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.5857142857143,
+              -34.934999999999995
+            ],
+            [
+              138.5857142857143,
+              -34.94
+            ],
+            [
+              138.58,
+              -34.94
+            ],
+            [
+              138.58,
+              -34.934999999999995
+            ],
+            [
+              138.5857142857143,
+              -34.934999999999995
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289692.0091002567
+    },
+    {
+      "tile_id": 1,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.58571429,-34.94000000,138.59142857,-34.93500000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.5857142857143,
+              -34.934999999999995
+            ],
+            [
+              138.5914285714286,
+              -34.934999999999995
+            ],
+            [
+              138.5914285714286,
+              -34.94
+            ],
+            [
+              138.5857142857143,
+              -34.94
+            ],
+            [
+              138.5857142857143,
+              -34.934999999999995
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289690.3653845403
+    },
+    {
+      "tile_id": 2,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.59142857,-34.94000000,138.59714286,-34.93500000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.5914285714286,
+              -34.934999999999995
+            ],
+            [
+              138.59714285714287,
+              -34.934999999999995
+            ],
+            [
+              138.59714285714287,
+              -34.94
+            ],
+            [
+              138.5914285714286,
+              -34.94
+            ],
+            [
+              138.5914285714286,
+              -34.934999999999995
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289688.72556890856
+    },
+    {
+      "tile_id": 3,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.59714286,-34.94000000,138.60285714,-34.93500000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.59714285714287,
+              -34.934999999999995
+            ],
+            [
+              138.60285714285715,
+              -34.934999999999995
+            ],
+            [
+              138.60285714285715,
+              -34.94
+            ],
+            [
+              138.59714285714287,
+              -34.94
+            ],
+            [
+              138.59714285714287,
+              -34.934999999999995
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289687.08965290117
+    },
+    {
+      "tile_id": 4,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.60285714,-34.94000000,138.60857143,-34.93500000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.60285714285715,
+              -34.934999999999995
+            ],
+            [
+              138.60857142857142,
+              -34.934999999999995
+            ],
+            [
+              138.60857142857142,
+              -34.94
+            ],
+            [
+              138.60285714285715,
+              -34.94
+            ],
+            [
+              138.60285714285715,
+              -34.934999999999995
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289685.4576352097
+    },
+    {
+      "tile_id": 5,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.60857143,-34.94000000,138.61428571,-34.93500000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.60857142857142,
+              -34.934999999999995
+            ],
+            [
+              138.61428571428573,
+              -34.934999999999995
+            ],
+            [
+              138.61428571428573,
+              -34.94
+            ],
+            [
+              138.60857142857142,
+              -34.94
+            ],
+            [
+              138.60857142857142,
+              -34.934999999999995
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289683.82952094194
+    },
+    {
+      "tile_id": 6,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.61428571,-34.94000000,138.62000000,-34.93500000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.62,
+              -34.94
+            ],
+            [
+              138.61428571428573,
+              -34.94
+            ],
+            [
+              138.61428571428573,
+              -34.934999999999995
+            ],
+            [
+              138.62,
+              -34.934999999999995
+            ],
+            [
+              138.62,
+              -34.94
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289682.2053009731
+    },
+    {
+      "tile_id": 7,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.58000000,-34.93500000,138.58571429,-34.93000000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.5857142857143,
+              -34.93
+            ],
+            [
+              138.5857142857143,
+              -34.934999999999995
+            ],
+            [
+              138.58,
+              -34.934999999999995
+            ],
+            [
+              138.58,
+              -34.93
+            ],
+            [
+              138.5857142857143,
+              -34.93
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289709.39259457093
+    },
+    {
+      "tile_id": 8,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.58571429,-34.93500000,138.59142857,-34.93000000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.5857142857143,
+              -34.934999999999995
+            ],
+            [
+              138.5857142857143,
+              -34.93
+            ],
+            [
+              138.5914285714286,
+              -34.93
+            ],
+            [
+              138.5914285714286,
+              -34.934999999999995
+            ],
+            [
+              138.5857142857143,
+              -34.934999999999995
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289707.7485793741
+    },
+    {
+      "tile_id": 9,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.59142857,-34.93500000,138.59714286,-34.93000000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.5914285714286,
+              -34.934999999999995
+            ],
+            [
+              138.5914285714286,
+              -34.93
+            ],
+            [
+              138.59714285714287,
+              -34.93
+            ],
+            [
+              138.59714285714287,
+              -34.934999999999995
+            ],
+            [
+              138.5914285714286,
+              -34.934999999999995
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289706.1084643656
+    },
+    {
+      "tile_id": 10,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.59714286,-34.93500000,138.60285714,-34.93000000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.59714285714287,
+              -34.934999999999995
+            ],
+            [
+              138.59714285714287,
+              -34.93
+            ],
+            [
+              138.60285714285715,
+              -34.93
+            ],
+            [
+              138.60285714285715,
+              -34.934999999999995
+            ],
+            [
+              138.59714285714287,
+              -34.934999999999995
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289704.4722493476
+    },
+    {
+      "tile_id": 11,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.60285714,-34.93500000,138.60857143,-34.93000000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.60285714285715,
+              -34.934999999999995
+            ],
+            [
+              138.60285714285715,
+              -34.93
+            ],
+            [
+              138.60857142857142,
+              -34.93
+            ],
+            [
+              138.60857142857142,
+              -34.934999999999995
+            ],
+            [
+              138.60285714285715,
+              -34.934999999999995
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289702.8399331436
+    },
+    {
+      "tile_id": 12,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.60857143,-34.93500000,138.61428571,-34.93000000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.60857142857142,
+              -34.934999999999995
+            ],
+            [
+              138.60857142857142,
+              -34.93
+            ],
+            [
+              138.61428571428573,
+              -34.93
+            ],
+            [
+              138.61428571428573,
+              -34.934999999999995
+            ],
+            [
+              138.60857142857142,
+              -34.934999999999995
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289701.2115217201
+    },
+    {
+      "tile_id": 13,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.61428571,-34.93500000,138.62000000,-34.93000000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.62,
+              -34.934999999999995
+            ],
+            [
+              138.61428571428573,
+              -34.934999999999995
+            ],
+            [
+              138.61428571428573,
+              -34.93
+            ],
+            [
+              138.62,
+              -34.93
+            ],
+            [
+              138.62,
+              -34.934999999999995
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289699.58700543473
+    },
+    {
+      "tile_id": 14,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.58000000,-34.93000000,138.58571429,-34.92500000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.5857142857143,
+              -34.925
+            ],
+            [
+              138.5857142857143,
+              -34.93
+            ],
+            [
+              138.58,
+              -34.93
+            ],
+            [
+              138.58,
+              -34.925
+            ],
+            [
+              138.5857142857143,
+              -34.925
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289726.77386956936
+    },
+    {
+      "tile_id": 15,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.58571429,-34.93000000,138.59142857,-34.92500000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.5857142857143,
+              -34.93
+            ],
+            [
+              138.5857142857143,
+              -34.925
+            ],
+            [
+              138.5914285714286,
+              -34.925
+            ],
+            [
+              138.5914285714286,
+              -34.93
+            ],
+            [
+              138.5857142857143,
+              -34.93
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289725.1295536468
+    },
+    {
+      "tile_id": 16,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.59142857,-34.93000000,138.59714286,-34.92500000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.5914285714286,
+              -34.93
+            ],
+            [
+              138.5914285714286,
+              -34.925
+            ],
+            [
+              138.59714285714287,
+              -34.925
+            ],
+            [
+              138.59714285714287,
+              -34.93
+            ],
+            [
+              138.5914285714286,
+              -34.93
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289723.4891388882
+    },
+    {
+      "tile_id": 17,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.59714286,-34.93000000,138.60285714,-34.92500000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.59714285714287,
+              -34.93
+            ],
+            [
+              138.59714285714287,
+              -34.925
+            ],
+            [
+              138.60285714285715,
+              -34.925
+            ],
+            [
+              138.60285714285715,
+              -34.93
+            ],
+            [
+              138.59714285714287,
+              -34.93
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289721.8526252581
+    },
+    {
+      "tile_id": 18,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.60285714,-34.93000000,138.60857143,-34.92500000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.60285714285715,
+              -34.93
+            ],
+            [
+              138.60285714285715,
+              -34.925
+            ],
+            [
+              138.60857142857142,
+              -34.925
+            ],
+            [
+              138.60857142857142,
+              -34.93
+            ],
+            [
+              138.60285714285715,
+              -34.93
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289720.2200117132
+    },
+    {
+      "tile_id": 19,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.60857143,-34.93000000,138.61428571,-34.92500000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.60857142857142,
+              -34.93
+            ],
+            [
+              138.60857142857142,
+              -34.925
+            ],
+            [
+              138.61428571428573,
+              -34.925
+            ],
+            [
+              138.61428571428573,
+              -34.93
+            ],
+            [
+              138.60857142857142,
+              -34.93
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289718.59130271
+    },
+    {
+      "tile_id": 20,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.61428571,-34.93000000,138.62000000,-34.92500000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.62,
+              -34.93
+            ],
+            [
+              138.61428571428573,
+              -34.93
+            ],
+            [
+              138.61428571428573,
+              -34.925
+            ],
+            [
+              138.62,
+              -34.925
+            ],
+            [
+              138.62,
+              -34.93
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289716.9664892928
+    },
+    {
+      "tile_id": 21,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.58000000,-34.92500000,138.58571429,-34.92000000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.5857142857143,
+              -34.919999999999995
+            ],
+            [
+              138.5857142857143,
+              -34.925
+            ],
+            [
+              138.58,
+              -34.925
+            ],
+            [
+              138.58,
+              -34.919999999999995
+            ],
+            [
+              138.5857142857143,
+              -34.919999999999995
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289744.1529210533
+    },
+    {
+      "tile_id": 22,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.58571429,-34.92500000,138.59142857,-34.92000000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.5857142857143,
+              -34.925
+            ],
+            [
+              138.5857142857143,
+              -34.919999999999995
+            ],
+            [
+              138.5914285714286,
+              -34.919999999999995
+            ],
+            [
+              138.5914285714286,
+              -34.925
+            ],
+            [
+              138.5857142857143,
+              -34.925
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289742.5083048062
+    },
+    {
+      "tile_id": 23,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.59142857,-34.92500000,138.59714286,-34.92000000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.5914285714286,
+              -34.925
+            ],
+            [
+              138.5914285714286,
+              -34.919999999999995
+            ],
+            [
+              138.59714285714287,
+              -34.919999999999995
+            ],
+            [
+              138.59714285714287,
+              -34.925
+            ],
+            [
+              138.5914285714286,
+              -34.925
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289740.86759079585
+    },
+    {
+      "tile_id": 24,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.59714286,-34.92500000,138.60285714,-34.92000000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.59714285714287,
+              -34.925
+            ],
+            [
+              138.59714285714287,
+              -34.919999999999995
+            ],
+            [
+              138.60285714285715,
+              -34.919999999999995
+            ],
+            [
+              138.60285714285715,
+              -34.925
+            ],
+            [
+              138.59714285714287,
+              -34.925
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289739.2307783831
+    },
+    {
+      "tile_id": 25,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.60285714,-34.92500000,138.60857143,-34.92000000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.60285714285715,
+              -34.925
+            ],
+            [
+              138.60285714285715,
+              -34.919999999999995
+            ],
+            [
+              138.60857142857142,
+              -34.919999999999995
+            ],
+            [
+              138.60857142857142,
+              -34.925
+            ],
+            [
+              138.60285714285715,
+              -34.925
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289737.59786618873
+    },
+    {
+      "tile_id": 26,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.60857143,-34.92500000,138.61428571,-34.92000000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.60857142857142,
+              -34.925
+            ],
+            [
+              138.60857142857142,
+              -34.919999999999995
+            ],
+            [
+              138.61428571428573,
+              -34.919999999999995
+            ],
+            [
+              138.61428571428573,
+              -34.925
+            ],
+            [
+              138.60857142857142,
+              -34.925
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289735.9688598753
+    },
+    {
+      "tile_id": 27,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.61428571,-34.92500000,138.62000000,-34.92000000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.62,
+              -34.925
+            ],
+            [
+              138.61428571428573,
+              -34.925
+            ],
+            [
+              138.61428571428573,
+              -34.919999999999995
+            ],
+            [
+              138.62,
+              -34.919999999999995
+            ],
+            [
+              138.62,
+              -34.925
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289734.34375043825
+    },
+    {
+      "tile_id": 28,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.58000000,-34.92000000,138.58571429,-34.91500000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.5857142857143,
+              -34.915
+            ],
+            [
+              138.5857142857143,
+              -34.919999999999995
+            ],
+            [
+              138.58,
+              -34.919999999999995
+            ],
+            [
+              138.58,
+              -34.915
+            ],
+            [
+              138.5857142857143,
+              -34.915
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289761.52975082793
+    },
+    {
+      "tile_id": 29,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.58571429,-34.92000000,138.59142857,-34.91500000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.5857142857143,
+              -34.919999999999995
+            ],
+            [
+              138.5857142857143,
+              -34.915
+            ],
+            [
+              138.5914285714286,
+              -34.915
+            ],
+            [
+              138.5914285714286,
+              -34.919999999999995
+            ],
+            [
+              138.5857142857143,
+              -34.919999999999995
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289759.88483473164
+    },
+    {
+      "tile_id": 30,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.59142857,-34.92000000,138.59714286,-34.91500000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.5914285714286,
+              -34.919999999999995
+            ],
+            [
+              138.5914285714286,
+              -34.915
+            ],
+            [
+              138.59714285714287,
+              -34.915
+            ],
+            [
+              138.59714285714287,
+              -34.919999999999995
+            ],
+            [
+              138.5914285714286,
+              -34.919999999999995
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289758.24382041005
+    },
+    {
+      "tile_id": 31,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.59714286,-34.92000000,138.60285714,-34.91500000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.59714285714287,
+              -34.919999999999995
+            ],
+            [
+              138.59714285714287,
+              -34.915
+            ],
+            [
+              138.60285714285715,
+              -34.915
+            ],
+            [
+              138.60285714285715,
+              -34.919999999999995
+            ],
+            [
+              138.59714285714287,
+              -34.919999999999995
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289756.6067097719
+    },
+    {
+      "tile_id": 32,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.60285714,-34.92000000,138.60857143,-34.91500000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.60285714285715,
+              -34.919999999999995
+            ],
+            [
+              138.60285714285715,
+              -34.915
+            ],
+            [
+              138.60857142857142,
+              -34.915
+            ],
+            [
+              138.60857142857142,
+              -34.919999999999995
+            ],
+            [
+              138.60285714285715,
+              -34.919999999999995
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289754.97350035893
+    },
+    {
+      "tile_id": 33,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.60857143,-34.92000000,138.61428571,-34.91500000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.60857142857142,
+              -34.919999999999995
+            ],
+            [
+              138.60857142857142,
+              -34.915
+            ],
+            [
+              138.61428571428573,
+              -34.915
+            ],
+            [
+              138.61428571428573,
+              -34.919999999999995
+            ],
+            [
+              138.60857142857142,
+              -34.919999999999995
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289753.3441966971
+    },
+    {
+      "tile_id": 34,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.61428571,-34.92000000,138.62000000,-34.91500000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.62,
+              -34.919999999999995
+            ],
+            [
+              138.61428571428573,
+              -34.919999999999995
+            ],
+            [
+              138.61428571428573,
+              -34.915
+            ],
+            [
+              138.62,
+              -34.915
+            ],
+            [
+              138.62,
+              -34.919999999999995
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289751.71879032993
+    },
+    {
+      "tile_id": 35,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.58000000,-34.91500000,138.58571429,-34.91000000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.5857142857143,
+              -34.915
+            ],
+            [
+              138.58,
+              -34.915
+            ],
+            [
+              138.58,
+              -34.91
+            ],
+            [
+              138.5857142857143,
+              -34.91
+            ],
+            [
+              138.5857142857143,
+              -34.915
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289778.9043591857
+    },
+    {
+      "tile_id": 36,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.58571429,-34.91500000,138.59142857,-34.91000000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.5914285714286,
+              -34.915
+            ],
+            [
+              138.5857142857143,
+              -34.915
+            ],
+            [
+              138.5857142857143,
+              -34.91
+            ],
+            [
+              138.5914285714286,
+              -34.91
+            ],
+            [
+              138.5914285714286,
+              -34.915
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289777.2591421238
+    },
+    {
+      "tile_id": 37,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.59142857,-34.91500000,138.59714286,-34.91000000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.59714285714287,
+              -34.915
+            ],
+            [
+              138.5914285714286,
+              -34.915
+            ],
+            [
+              138.5914285714286,
+              -34.91
+            ],
+            [
+              138.59714285714287,
+              -34.91
+            ],
+            [
+              138.59714285714287,
+              -34.915
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289775.61782921164
+    },
+    {
+      "tile_id": 38,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.59714286,-34.91500000,138.60285714,-34.91000000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.60285714285715,
+              -34.915
+            ],
+            [
+              138.59714285714287,
+              -34.915
+            ],
+            [
+              138.59714285714287,
+              -34.91
+            ],
+            [
+              138.60285714285715,
+              -34.91
+            ],
+            [
+              138.60285714285715,
+              -34.915
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289773.9804194143
+    },
+    {
+      "tile_id": 39,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.60285714,-34.91500000,138.60857143,-34.91000000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.60857142857142,
+              -34.915
+            ],
+            [
+              138.60285714285715,
+              -34.915
+            ],
+            [
+              138.60285714285715,
+              -34.91
+            ],
+            [
+              138.60857142857142,
+              -34.91
+            ],
+            [
+              138.60857142857142,
+              -34.915
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289772.34691123094
+    },
+    {
+      "tile_id": 40,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.60857143,-34.91500000,138.61428571,-34.91000000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.61428571428573,
+              -34.915
+            ],
+            [
+              138.60857142857142,
+              -34.915
+            ],
+            [
+              138.60857142857142,
+              -34.91
+            ],
+            [
+              138.61428571428573,
+              -34.91
+            ],
+            [
+              138.61428571428573,
+              -34.915
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289770.71731035627
+    },
+    {
+      "tile_id": 41,
+      "source_polygons": [
+        0
+      ],
+      "coverage": {
+        "surveys": [
+          {
+            "id": "b04a42be-75ff-55c3-8993-354817c4a1fc",
+            "captureDate": "2026-03-03",
+            "captureDateTime": "2026-03-03T04:07:23Z",
+            "firstPhotoTime": "2026-03-03",
+            "lastPhotoTime": "2026-03-04",
+            "contentTypes": [
+              "aiPacks:vegetation"
+            ],
+            "aiResourceId": "38341665-f4fe-51ab-8e11-d416a0e10544",
+            "aiSystemVersion": "gen6-glowing_moon-1.0",
+            "tags": {
+              "disaster": ""
+            }
+          }
+        ],
+        "limit": 20,
+        "offset": 0,
+        "total": 1,
+        "preview": true,
+        "costOfTransaction": 1450,
+        "reference": "",
+        "bbox": "138.61428571,-34.91500000,138.62000000,-34.91000000",
+        "resourceServers": {
+          "aiPacks": "https://api.nearmap.com/ai/features/v4/tx/surveyresources/{aiResourceId}/features.json?transactionToken={transactionToken}"
+        },
+        "tileSizeInPixels": 4096
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              138.62,
+              -34.915
+            ],
+            [
+              138.61428571428573,
+              -34.915
+            ],
+            [
+              138.61428571428573,
+              -34.91
+            ],
+            [
+              138.62,
+              -34.91
+            ],
+            [
+              138.62,
+              -34.915
+            ]
+          ]
+        ]
+      },
+      "area_sqm": 289769.09160737303
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+{
+  "metadata": {
+    "preview_mode": true,
+    "ai_pack": "pavement_condition",
+    "resource_type": "aiPacks:pavement_condition",
+    "geometry_file": "c:\\Documents\\programming\\nearmap\\data\\aois\\adelaide_sample_aoi.geojson",
+    "timestamp": "2026-05-29T13:43:17.895988",
+    "max_area_sqm": 300000,
+    "date_filter_since": null,
+    "date_filter_until": null,
+    "date_filter_mode": "single"
+  },
+  "summary": {
+    "input_features": 1,
+    "extracted_polygons": 1,
+    "total_tiles_generated": 42,
+    "unique_tiles": 42,
+    "tiles_with_coverage": 0,
+    "total_estimated_cost_credits": 0
+  },
+  "tiles": []
+}
