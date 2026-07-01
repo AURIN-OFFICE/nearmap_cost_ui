@@ -56,23 +56,36 @@ class CoverageFetcher:
     """
 
     # Available AI pack resources (kept for reference / parity with the original).
+    # Identifiers verified against the live coverage API — the API rejects the
+    # "obvious" variants with UNKNOWN_PACK, so these irregular spellings are correct
+    # (pavement_cond not pavement_condition; roof_materials plural vs roof_shape
+    # singular; advanced_roof_cond not roof_cond_advanced).
     AI_PACKS = {
+        "advanced_roof_cond": "aiPacks:advanced_roof_cond",
         "building": "aiPacks:building",
         "building_char": "aiPacks:building_char",
+        "building_structures": "aiPacks:building_structures",
+        "commercial_roof_objects": "aiPacks:commercial_roof_objects",
         "construction": "aiPacks:construction",
         "debris": "aiPacks:debris",
+        "experimental": "aiPacks:experimental",
+        "pavement_cond": "aiPacks:pavement_cond",
         "pavement_marking": "aiPacks:pavement_marking",
         "poles": "aiPacks:poles",
         "pool": "aiPacks:pool",
-        "postcat": "aiPacks:postcat",
         "roof_char": "aiPacks:roof_char",
         "roof_cond": "aiPacks:roof_cond",
+        "roof_materials": "aiPacks:roof_materials",
         "roof_objects": "aiPacks:roof_objects",
+        "roof_overhang": "aiPacks:roof_overhang",
+        "roof_shape": "aiPacks:roof_shape",
         "solar": "aiPacks:solar",
         "surface_permeability": "aiPacks:surface_permeability",
         "surfaces": "aiPacks:surfaces",
         "trampoline": "aiPacks:trampoline",
+        "utilities": "aiPacks:utilities",
         "vegetation": "aiPacks:vegetation",
+        "yard_objects": "aiPacks:yard_objects",
     }
 
     def __init__(self, api_key: str = "", max_area_sqm: float = 300000):

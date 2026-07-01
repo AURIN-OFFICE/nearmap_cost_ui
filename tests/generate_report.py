@@ -223,9 +223,11 @@ def build_report() -> str:
     lines.append("| 15 | 8,869 | 8,890 | 0.998 |")
     lines.append(
         "\n- **Multi-survey bundle (§4):** `dates=all` / `dates=single` = **1.500** exactly.\n"
-        "- **Entitlements:** the probe found **15/16 packs accessible** on the test key "
-        "(`postcat` rejected). `by_api_return` excludes what you can't order; `by_area` would "
-        "price all 16.\n"
+        "- **Entitlements & catalogue:** the catalogue now lists **25 AI packs**. The former "
+        "`aiPacks:postcat` entry was removed — the live API rejects it as `UNKNOWN_PACK`; "
+        "post-catastrophe data is only reachable via the separately-entitled "
+        "`aiImpactAssessment:postcat` (403 `not permitted` on the test key). `by_api_return` "
+        "excludes packs you can't order; `by_area` would price the full catalogue regardless.\n"
     )
 
     lines.append("## Key takeaways\n")

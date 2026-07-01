@@ -82,7 +82,7 @@ Recorded from `python -m tests.run_live_validation` (2026-06-17, one small Adela
 | 15 | 8,869 | 8,890 | 0.998 |
 
 - **Multi-survey bundle (§4):** `dates=all` / `dates=single` = **1.500** exactly.
-- **Entitlements:** the probe found **15/16 packs accessible** on the test key (`postcat` rejected). `by_api_return` excludes what you can't order; `by_area` would price all 16.
+- **Entitlements & catalogue:** the catalogue now lists **25 AI packs**. The former `aiPacks:postcat` entry was removed — the live API rejects it as `UNKNOWN_PACK`; post-catastrophe data is only reachable via the separately-entitled `aiImpactAssessment:postcat` (403 `not permitted` on the test key). `by_api_return` excludes packs you can't order; `by_area` would price the full catalogue regardless.
 
 ## Key takeaways
 

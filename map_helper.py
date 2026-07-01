@@ -10,7 +10,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 import folium
 from folium.plugins import Draw
 from streamlit_folium import st_folium
-from shapely.geometry import shape
+from shapely.geometry import shape, Point
 from pyproj import Transformer, CRS
 from shapely.ops import transform
 import shapely
@@ -57,6 +57,29 @@ def coverage_bounds(tiles: List[Dict[str, Any]]) -> Optional[Tuple[float, float,
     maxx = max(g.bounds[2] for g in geoms)
     maxy = max(g.bounds[3] for g in geoms)
     return (miny, minx, maxy, maxx)
+
+
+def tile_at_point(tiles: List[Dict[str, Any]], lat: float, lon: float) -> Optional[int]:
+    """Flattened index of the first tile whose polygon contains a clicked point.
+
+    Bridges an st_folium map click (which reports ``lat``/``lng``) back to a tile so its
+    detail panel can be shown. Returns ``None`` when the click hit no tile (e.g. an ocean
+    gap), so the caller can leave the current selection unchanged. Boundary clicks count
+    as hits (``intersects``); for overlapping tiles the first in list order wins, keeping
+    the result deterministic. Tiles with missing/invalid geometry are skipped, not fatal.
+    """
+    point = Point(lon, lat)  # shapely is (x=lon, y=lat)
+    for idx, tile in enumerate(tiles):
+        geom = tile.get("geometry")
+        if not geom:
+            continue
+        try:
+            polygon = shape(geom)
+        except (TypeError, ValueError, KeyError):
+            continue
+        if polygon.intersects(point):
+            return idx
+    return None
 
 
 class BoxDrawer:
@@ -174,16 +197,27 @@ class BoxDrawer:
         # Render the map in Streamlit without capturing interactions
         st_folium(m, height=self.height, width=self.width, returned_objects=[])
 
-    def show_coverage(self, tiles: List[Dict[str, Any]], key: str = "coverage_map") -> None:
-        """Render a read-only map colouring each tile by coverage status (feature 2).
+    def show_coverage(
+        self,
+        tiles: List[Dict[str, Any]],
+        key: str = "coverage_map",
+        selected_index: Optional[int] = None,
+    ) -> Optional[Dict[str, Any]]:
+        """Render a map colouring each tile by coverage status; capture tile clicks.
 
         Args:
             tiles: plan tile records, each with ``geometry``, ``status`` and (for
                 covered tiles) ``coverage.costOfTransaction``.
             key: st_folium widget key (must be unique on the page).
+            selected_index: flattened index of the currently-inspected tile, drawn with a
+                bold outline so the click-to-inspect selection is visible on the map.
+
+        Returns:
+            The ``st_folium`` result dict (``last_object_clicked`` / ``last_clicked`` carry
+            the clicked point), or ``None`` when there are no tiles to draw.
         """
         if not tiles:
-            return
+            return None
 
         bounds = coverage_bounds(tiles)
         center = self.center
@@ -196,19 +230,29 @@ class BoxDrawer:
             control_scale=self.control_scale,
             prefer_canvas=self.prefer_canvas,
         )
-        for tile in tiles:
+        for idx, tile in enumerate(tiles):
             color = STATUS_COLORS.get(tile.get("status", "covered"), STATUS_COLORS["no_coverage"])
+            is_selected = idx == selected_index
+            style = (
+                {"color": "#111111", "weight": 4, "fillColor": color, "fillOpacity": 0.65}
+                if is_selected
+                else {"color": color, "weight": 1, "fillColor": color, "fillOpacity": 0.45}
+            )
             folium.GeoJson(
                 tile["geometry"],
-                style_function=(lambda _f, c=color: {
-                    "color": c, "weight": 1, "fillColor": c, "fillOpacity": 0.45,
-                }),
-                tooltip=folium.Tooltip(coverage_tile_tooltip(tile)),
+                style_function=(lambda _f, s=style: s),
+                tooltip=folium.Tooltip(f"Tile #{idx + 1} · {coverage_tile_tooltip(tile)}"),
             ).add_to(m)
         if bounds:
             m.fit_bounds([[bounds[0], bounds[1]], [bounds[2], bounds[3]]])
 
-        st_folium(m, height=self.height, width=self.width, returned_objects=[], key=key)
+        return st_folium(
+            m,
+            height=self.height,
+            width=self.width,
+            returned_objects=["last_object_clicked", "last_clicked"],
+            key=key,
+        )
 
     def feature_collection(self) -> FeatureCollection:
         """

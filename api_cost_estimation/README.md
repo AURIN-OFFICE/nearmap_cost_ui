@@ -36,8 +36,10 @@ The ~80–118 ocean tiles cost 0 in reality; `by_area` can't see that and bills 
 isn't permitted to access (or that aren't a valid Nearmap resource at all). The API rejects
 those, e.g. `HTTP 403 {"error":"access to resource namespace trueOrthoAiPacks not permitted"}`
 (or `HTTP 400 {"errors":["UNKNOWN_PACK"]}`), so `by_api_return` **flags it** instead of
-returning a confident price for data you could never actually order. (Live check: 15/16 packs
-accessible on the test key — `postcat` rejected.)
+returning a confident price for data you could never actually order. (Live check: all 25 AI
+packs are valid identifiers and priced on the test key; the separate `aiImpactAssessment:postcat`
+product returned `403 not permitted`. The former `aiPacks:postcat` entry was dropped — the API
+rejects it as `UNKNOWN_PACK`.)
 
 ### What `by_area` gets *right*: the pricing bundles
 Easy to assume otherwise, so worth stressing: `by_area` correctly models **both** of Nearmap's
