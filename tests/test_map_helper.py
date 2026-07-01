@@ -52,3 +52,39 @@ def test_coverage_bounds_spans_all_tiles():
 
 def test_coverage_bounds_none_when_empty():
     assert map_helper.coverage_bounds([]) is None
+
+
+# --- tile_at_point: map a clicked (lat, lon) back to a tile index (click-to-inspect) ---
+
+# Two adjacent unit squares: A = lon[0,1], B = lon[1,2], both lat[0,1].
+_TILE_A = {"geometry": _poly(0, 0, 1, 1)}
+_TILE_B = {"geometry": _poly(1, 0, 2, 1)}
+
+
+def test_tile_at_point_inside_first_tile_returns_its_index():
+    # signature is (tiles, lat, lon); point lon=0.5, lat=0.5 is inside A
+    assert map_helper.tile_at_point([_TILE_A, _TILE_B], 0.5, 0.5) == 0
+
+
+def test_tile_at_point_inside_second_tile_returns_its_index():
+    assert map_helper.tile_at_point([_TILE_A, _TILE_B], 0.5, 1.5) == 1
+
+
+def test_tile_at_point_outside_all_tiles_returns_none():
+    assert map_helper.tile_at_point([_TILE_A, _TILE_B], 5.0, 5.0) is None
+
+
+def test_tile_at_point_empty_list_returns_none():
+    assert map_helper.tile_at_point([], 0.5, 0.5) is None
+
+
+def test_tile_at_point_overlapping_tiles_return_first_match():
+    big = {"geometry": _poly(0, 0, 3, 3)}
+    inner = {"geometry": _poly(1, 1, 2, 2)}
+    # point in both -> first in list order wins (deterministic)
+    assert map_helper.tile_at_point([big, inner], 1.5, 1.5) == 0
+
+
+def test_tile_at_point_skips_invalid_geometry():
+    bad = {"geometry": None}
+    assert map_helper.tile_at_point([bad, _TILE_A], 0.5, 0.5) == 1

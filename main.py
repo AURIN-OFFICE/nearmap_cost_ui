@@ -3,8 +3,10 @@
 # based on geographic areas and selected resource types.
 import streamlit as st
 import pandas as pd
-from map_helper import BoxDrawer, STATUS_COLORS
+from map_helper import BoxDrawer, STATUS_COLORS, tile_at_point
 from nearmap_helper import NearMapHelper
+from tile_details import summarize_tile
+from resource_labels import label_for, ordered_keys
 import layer_config
 from folium.plugins import Draw
 import json
@@ -42,7 +44,7 @@ st.markdown(
     <style>
         .block-container {
             padding-top: 1rem;
-            padding-bottom: 0rem;
+            padding-bottom: 3rem;
             padding-left: 1rem;
             padding-right: 1rem;
         }
@@ -108,7 +110,7 @@ class OtherHelpers:
         )
         current = layer_config.load_availability()
         new_state = {
-            resource: st.checkbox(resource, value=current[resource], key=f"avail_{resource}")
+            resource: st.checkbox(label_for(resource), value=current[resource], key=f"avail_{resource}")
             for resource in layer_config.all_resource_keys()
         }
 
@@ -206,6 +208,66 @@ class OtherHelpers:
             )
 
     @staticmethod
+    def render_tile_details(tiles):
+        """Show what the API returned for the selected tile as one property table + raw JSON.
+
+        Selection is owned by the ``tile_select_box`` selectbox state; a map click writes the
+        clicked tile's index into it. No API calls — everything comes from the tile record
+        cached at estimation time. The how-to hint is shown at the top of the inspection
+        section, so nothing is rendered here until a tile is selected.
+        """
+        idx = st.session_state.get('tile_select_box')
+        if idx is None or not (0 <= idx < len(tiles)):
+            return
+
+        # The panel renders below the map, which can be off-screen — so when the selection
+        # changes, pop a toast (shown regardless of scroll position) pointing to it.
+        if st.session_state.get('_last_toasted') != idx:
+            st.session_state['_last_toasted'] = idx
+            st.toast(f"Showing details for Tile #{idx + 1} below ↓", icon="📍")
+
+        tile = tiles[idx]
+        s = summarize_tile(tile, idx)
+        srcs = ", ".join(str(p + 1) for p in s["source_polygons"]) or "—"
+        dates = ", ".join(sv["date"] for sv in s["surveys"] if sv.get("date")) or "—"
+        # Unique content types across the tile's surveys, shown with human-readable names.
+        seen, cts = set(), []
+        for sv in s["surveys"]:
+            for ct in sv["content_types"]:
+                if ct not in seen:
+                    seen.add(ct)
+                    cts.append(label_for(ct))
+        content = ", ".join(cts) or "—"
+
+        # A bordered card with a status-coloured dot (matching the map legend) so the panel
+        # reads as something that appeared, not just text flowing below.
+        color = STATUS_COLORS.get(s["status"], "#888888")
+        with st.container(border=True):
+            st.markdown(
+                f"#### <span style='color:{color};font-size:0.9em'>■</span> "
+                f"Tile #{s['number']} — {s['status']}",
+                unsafe_allow_html=True,
+            )
+            st.dataframe(
+                pd.DataFrame(
+                    [
+                        ("Credit", f"{s['credits']:,}"),
+                        ("Area", f"{round(s['area_sqm']):,} m²"),
+                        ("Polygon ID", srcs),
+                        ("Capture date", dates),
+                        ("Content types", content),
+                    ],
+                    columns=["Property", "Value"],
+                ),
+                hide_index=True,
+                use_container_width=True,
+            )
+            if s["status"] == "errored" and s["error"]:
+                st.warning(f"This tile errored and was counted as 0 credits: {s['error']}")
+            with st.expander("Raw API response", expanded=True):
+                st.json(tile.get("coverage") or {"status": s["status"], "error": s["error"]})
+
+    @staticmethod
     def run_estimation(req):
         """Estimate every polygon in the request, rendering a single progress bar (feature 7).
 
@@ -249,6 +311,11 @@ class OtherHelpers:
             st.session_state['last_coverage_tiles'] = [
                 tile for r in per_aoi for tile in r['plan']['tiles']
             ]
+            # New estimation -> drop any prior tile-inspection selection so a stale index
+            # can't point at the wrong tile in the new result.
+            st.session_state.pop('tile_select_box', None)
+            st.session_state.pop('_last_processed_click', None)
+            st.session_state.pop('_last_toasted', None)
         except Exception as e:
             st.session_state['latestErrorMessage'] = str(e)
             OtherHelpers.seeErrorModal()
@@ -269,7 +336,51 @@ class OtherHelpers:
             st.session_state.pop('latestErrorMessage')
         else:
             st.write('Nothing to report, please close this dialog window.')
-    
+
+
+@st.fragment
+def render_coverage_inspect(coverage_tiles):
+    """Coverage map + tile inspection, isolated in a Streamlit fragment.
+
+    Clicking a tile makes st_folium rerun the script to report the click. Wrapping this
+    section in a fragment scopes that rerun to *only here*, so the rest of the page (the
+    form, header and drawing map) no longer flashes on every click. A click is applied
+    once — deduped on its lat/lng, which st_folium keeps returning across reruns — so a
+    later selectbox choice isn't clobbered by the persisted last click.
+    """
+    map_result = BoxDrawer(height=500).show_coverage(coverage_tiles, key="coverage_map")
+
+    # Map click -> tile index. Prefer the object click; fall back to any map click. A click
+    # that hits no tile leaves the selection unchanged.
+    clicked = None
+    if isinstance(map_result, dict):
+        clicked = map_result.get("last_object_clicked") or map_result.get("last_clicked")
+    if clicked and clicked.get("lat") is not None:
+        click_id = (clicked["lat"], clicked["lng"])
+        if st.session_state.get("_last_processed_click") != click_id:
+            st.session_state["_last_processed_click"] = click_id
+            hit = tile_at_point(coverage_tiles, clicked["lat"], clicked["lng"])
+            if hit is not None:
+                st.session_state["tile_select_box"] = hit
+
+    # Drop a stale selection (e.g. a re-estimation produced fewer tiles).
+    sel = st.session_state.get("tile_select_box")
+    if sel is not None and not (0 <= sel < len(coverage_tiles)):
+        st.session_state.pop("tile_select_box", None)
+
+    # ── Tile inspection ────────────────────────────────────────────────────────
+    st.divider()
+    st.caption("👆 Click a tile on the map, or pick one below, to see its API response.")
+    st.selectbox(
+        "Inspect tile #",
+        options=list(range(len(coverage_tiles))),
+        index=None,
+        placeholder="Click a tile or pick one…",
+        format_func=lambda i: f"#{i + 1} — {coverage_tiles[i].get('status', 'covered')}",
+        key="tile_select_box",
+    )
+    OtherHelpers.render_tile_details(coverage_tiles)
+
 
 # Main Application UI
 # Create the main layout with header and logo columns
@@ -340,10 +451,12 @@ with left:
             "aiImpactAssessment": "AI Impact Assessment",
         }
         # One collapsible group per namespace; the checkbox key stays the full resource
-        # id (e.g. "raster:Vert") while the label shows just the short name.
+        # id (e.g. "raster:Vert") while the label shows the human-readable catalogue name.
+        # Items are ordered to match the Nearmap website AI Packs catalogue.
         for namespace in resources_object['namespaces']:
             keys = [f"{namespace}:{n}" for n in resources_object['resources'].get(namespace, [])]
             keys = [k for k in keys if k in all_tuples]
+            keys = ordered_keys(namespace, keys)
             if not keys:
                 continue
             label = NAMESPACE_LABELS.get(namespace, namespace)
@@ -351,7 +464,7 @@ with left:
                 for resource in keys:
                     is_available = availability.get(resource, True)
                     checked = st.checkbox(
-                        resource.split(":", 1)[1],
+                        label_for(resource),
                         key=resource,
                         disabled=not is_available,
                         help=None if is_available else
@@ -515,12 +628,16 @@ with right:
             # reopen / export the previous estimate.
             st.session_state.geodata_ready = False
             st.session_state.pop('last_coverage_tiles', None)
+            st.session_state.pop('tile_select_box', None)  # clear tile inspection too
+            st.session_state.pop('_last_processed_click', None)
+            st.session_state.pop('_last_toasted', None)
 
     # After an estimation, show the outcome panel and the coverage map together (#3):
     # the numbers and the colour-coded tiles for the same run, inline in this pane. No
     # modal, so there's nothing to flash away and nothing to "reopen".
     coverage_tiles = st.session_state.get('last_coverage_tiles')
     if coverage_tiles:
+        st.divider()  # separate the AOI/map-selection part from the estimation result
         OtherHelpers.render_outcome()
         st.markdown("**Coverage result**")
         legend = " &nbsp;&nbsp; ".join(
@@ -532,7 +649,9 @@ with right:
             )
         )
         st.markdown(legend, unsafe_allow_html=True)
-        BoxDrawer(height=500).show_coverage(coverage_tiles)
+        # Map + tile inspection run inside a fragment so a tile click reruns only that
+        # section (not the whole page — that full rerun is what made the UI flash).
+        render_coverage_inspect(coverage_tiles)
 
 # The estimation outcome now renders inline in the right pane (above the coverage map),
 # so the numbers and the map are visible at the same time (#3) — no modal needed.

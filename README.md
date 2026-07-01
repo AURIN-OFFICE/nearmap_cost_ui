@@ -28,9 +28,10 @@ offline + live validation harness. The UI now shows **both figures side by side*
 is kept unchanged as a sanity check, with `by_api_return` as the trusted figure. All preview
 calls are free.
 
-**Test result:** offline suite **51 passed / 6 skipped**, and live API checks (preview-only, $0)
-confirm it — 0% price drift, both pricing bundles hold, and entitlements are enforced (15/16
-packs accessible on the test key). The payoff: **`by_api_return` is the *actual billed cost*.**
+**Test result:** offline suite **74 passed / 6 skipped**, and live API checks (preview-only, $0)
+confirm it — 0% price drift, both pricing bundles hold, and entitlements are enforced (all 25
+AI packs are valid, priced identifiers on the test key; the separate `aiImpactAssessment:postcat`
+returns 403 not permitted). The payoff: **`by_api_return` is the *actual billed cost*.**
 On covered AOIs with packs you own it matches `by_area` to ~0.1% (just per-tile rounding), but
 it's the figure to trust because it's right where `by_area` quietly isn't — it won't
 **over-charge AOIs touching ocean/uncovered land (up to +33%)** or **quote packs your
@@ -85,15 +86,33 @@ Choose from comprehensive Nearmap data types:
 - **DSM**: Digital Surface Models
 
 #### AI Packs (Artificial Intelligence Analysis)
-- **Building Detection**: Identify and classify buildings
-- **Construction Monitoring**: Track construction progress
-- **Debris Detection**: Identify debris and waste materials
-- **Pavement Marking**: Detect road markings and signage
-- **Pool Detection**: Identify swimming pools and water features
-- **Roof Analysis**: Assess roof characteristics and conditions
-- **Solar Panel Detection**: Identify solar installations
-- **Surface Analysis**: Classify surface types and permeability
-- **Vegetation Mapping**: Analyze vegetation coverage and health
+**25 AI packs** are available. Each costs 5 credits for a single survey (7.5 for all
+surveys); beyond 7 packs the price is capped at the all-packs bundle. The API resource
+identifier (used in requests) is shown in `code`.
+
+| AI Pack | Resource ID | | AI Pack | Resource ID |
+|---|---|---|---|---|
+| Building Footprints | `aiPacks:building` | | Roof Objects | `aiPacks:roof_objects` |
+| Building Characteristics | `aiPacks:building_char` | | Commercial Roof Objects | `aiPacks:commercial_roof_objects` |
+| Building Structures | `aiPacks:building_structures` | | Roof Overhang | `aiPacks:roof_overhang` |
+| Construction | `aiPacks:construction` | | Solar Panels | `aiPacks:solar` |
+| Debris | `aiPacks:debris` | | Swimming Pool | `aiPacks:pool` |
+| Roof Characteristics | `aiPacks:roof_char` | | Trampoline | `aiPacks:trampoline` |
+| Roof Condition | `aiPacks:roof_cond` | | Yard Objects | `aiPacks:yard_objects` |
+| Advanced Roof Condition | `aiPacks:advanced_roof_cond` | | Surfaces | `aiPacks:surfaces` |
+| Roof Shape | `aiPacks:roof_shape` | | Surface Permeability | `aiPacks:surface_permeability` |
+| Roof Materials | `aiPacks:roof_materials` | | Pavement Markings | `aiPacks:pavement_marking` |
+| Pavement Condition | `aiPacks:pavement_cond` | | Poles | `aiPacks:poles` |
+| Utilities | `aiPacks:utilities` | | Vegetation | `aiPacks:vegetation` |
+| Experimental | `aiPacks:experimental` | | | |
+
+Post-catastrophe / damage assessment is a **separate** product — `aiImpactAssessment:postcat`
+(35 credits) — not one of the AI packs, and it needs its own subscription entitlement.
+
+> **Identifiers are irregular and were verified against the live coverage API** (the API
+> returns `UNKNOWN_PACK` for the "obvious" spelling), so don't normalise them: `pavement_cond`
+> (not `pavement_condition`), `roof_materials` (plural) but `roof_shape` (singular), and
+> `advanced_roof_cond` (not `roof_cond_advanced`).
 
 ### Cost Calculation
 The application calculates costs based on:
@@ -399,16 +418,9 @@ The application calculates costs based on:
 - DSM
 
 ### AI Packs
-- Building detection
-- Construction monitoring
-- Debris detection
-- Pavement marking
-- Pool detection
-- Roof analysis
-- Solar panel detection
-- Surface analysis
-- Vegetation mapping
-- And more...
+25 AI packs across buildings, roofs, surfaces, pavement, vegetation, amenities and
+infrastructure — see the full pack ↔ resource-ID table under
+[Supported Resource Types → AI Packs](#ai-packs-artificial-intelligence-analysis).
 
 ## Troubleshooting
 

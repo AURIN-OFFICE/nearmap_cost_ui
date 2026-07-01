@@ -114,7 +114,7 @@ def check_multipack(key, sleep, log):
     unavailable = [k.split(":", 1)[1] for k in ai_keys if k not in accessible]
     log(f"Accessible AI packs for this account: **{len(accessible)}/{len(ai_keys)}** "
         f"(unavailable: {', '.join(unavailable) or 'none'}). That gap is the entitlements "
-        "point — by_area would price all 16 regardless.\n")
+        f"point — by_area would price all {len(ai_keys)} regardless.\n")
     if len(accessible) < 8:
         log("Fewer than 8 accessible packs, so the 7-pack cap can't be exercised live here "
             "(the offline cost-table + by_area tests cover it instead).\n")

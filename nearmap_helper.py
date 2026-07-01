@@ -41,22 +41,31 @@ class NearMapHelper:
                 "West"
                 ],
                 "aiPacks": [
+                "advanced_roof_cond",
                 "building",
                 "building_char",
+                "building_structures",
+                "commercial_roof_objects",
                 "construction",
                 "debris",
+                "experimental",
+                "pavement_cond",
                 "pavement_marking",
                 "poles",
                 "pool",
-                "postcat",
                 "roof_char",
                 "roof_cond",
+                "roof_materials",
                 "roof_objects",
+                "roof_overhang",
+                "roof_shape",
                 "solar",
                 "surface_permeability",
                 "surfaces",
                 "trampoline",
-                "vegetation"
+                "utilities",
+                "vegetation",
+                "yard_objects"
                 ],
                 "trueOrthoAiPacks": [
                 "building",
@@ -142,11 +151,6 @@ class NearMapHelper:
                     "Credits (all survey data)": 7.5,
                     "matched_content_type": "AI (1 pack)"
                 },
-                "aiPacks:postcat": {
-                    "Credits (single survey)": 5,
-                    "Credits (all survey data)": 7.5,
-                    "matched_content_type": "AI (1 pack)"
-                },
                 "aiPacks:roof_char": {
                     "Credits (single survey)": 5,
                     "Credits (all survey data)": 7.5,
@@ -183,6 +187,62 @@ class NearMapHelper:
                     "matched_content_type": "AI (1 pack)"
                 },
                 "aiPacks:vegetation": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                # Packs below were verified against the live coverage API (preview=true):
+                # each returns HTTP 200 and prices as a standard "AI (1 pack)" (5 / 7.5).
+                # The identifiers are irregular by design — the API returns UNKNOWN_PACK for
+                # the "obvious" variants, so do NOT normalise these: pavement_cond (not
+                # pavement_condition), roof_materials (plural) but roof_shape (singular),
+                # advanced_roof_cond (prefixed + abbreviated, not roof_cond_advanced).
+                "aiPacks:advanced_roof_cond": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "aiPacks:building_structures": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "aiPacks:commercial_roof_objects": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "aiPacks:experimental": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "aiPacks:pavement_cond": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "aiPacks:roof_materials": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "aiPacks:roof_overhang": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "aiPacks:roof_shape": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "aiPacks:utilities": {
+                    "Credits (single survey)": 5,
+                    "Credits (all survey data)": 7.5,
+                    "matched_content_type": "AI (1 pack)"
+                },
+                "aiPacks:yard_objects": {
                     "Credits (single survey)": 5,
                     "Credits (all survey data)": 7.5,
                     "matched_content_type": "AI (1 pack)"
