@@ -21,3 +21,6 @@ shapely>=2.0.0
 
 # Cartographic projections library for coordinate transformations
 pyproj>=3.6.0
+
+# Loads NEARMAP_API_TOKEN from a local .env file to pre-fill the API key field
+python-dotenv>=1.0.0

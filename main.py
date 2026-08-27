@@ -10,7 +10,9 @@ from resource_labels import label_for, ordered_keys
 import layer_config
 from folium.plugins import Draw
 import json
+import os
 import time
+from dotenv import load_dotenv
 from datetime import datetime, timezone
 import quote_export
 from api_cost_estimation.estimators import (
@@ -19,6 +21,11 @@ from api_cost_estimation.estimators import (
     aggregate_results,
     DEFAULT_MAX_WORKERS,
 )
+
+# Load NEARMAP_API_TOKEN (and anything else) from a local .env so the key field is
+# pre-filled during development. Deployed environments can set the variable directly;
+# the field stays empty and editable when neither is present.
+load_dotenv()
 
 # Tiling thresholds for the API-based ("by_api_return") estimate (see caveat E):
 TILE_WARN_THRESHOLD = 50   # confirm before running more than this many preview calls
@@ -32,7 +39,7 @@ SECONDS_PER_TILE = 0.5     # approx wall-clock per preview call (network latency
 # Sets up the main page configuration for the Nearmap Cost Estimator application
 st.set_page_config(
     page_title="Nearmap Cost Estimator", 
-    page_icon="💰",
+    page_icon=None,
     layout="wide",
     initial_sidebar_state="collapsed"  # Collapses sidebar if present to save space
 )
@@ -121,10 +128,10 @@ class OtherHelpers:
             st.rerun()
 
         col1, col2 = st.columns(2)
-        if col1.button("Save", type="primary", icon="💾", width="stretch"):
+        if col1.button("Save", type="primary", width="stretch"):
             layer_config.save_availability(new_state)
             _close()
-        if col2.button("Cancel", icon="✖️", width="stretch"):
+        if col2.button("Cancel", width="stretch"):
             _close()
 
 
@@ -224,7 +231,7 @@ class OtherHelpers:
         # changes, pop a toast (shown regardless of scroll position) pointing to it.
         if st.session_state.get('_last_toasted') != idx:
             st.session_state['_last_toasted'] = idx
-            st.toast(f"Showing details for Tile #{idx + 1} below ↓", icon="📍")
+            st.toast(f"Showing details for Tile #{idx + 1} below")
 
         tile = tiles[idx]
         s = summarize_tile(tile, idx)
@@ -370,7 +377,7 @@ def render_coverage_inspect(coverage_tiles):
 
     # ── Tile inspection ────────────────────────────────────────────────────────
     st.divider()
-    st.caption("👆 Click a tile on the map, or pick one below, to see its API response.")
+    st.caption("Click a tile on the map, or pick one below, to see its API response.")
     st.selectbox(
         "Inspect tile #",
         options=list(range(len(coverage_tiles))),
@@ -423,7 +430,11 @@ if 'geodata_ready' not in st.session_state:
 with left:
     # Left sidebar containing form controls
     # API Key Input - secure text input for Nearmap API key
-    api_key = st.text_input("Enter Your Nearmap API Key", type="password", value="")
+    api_key = st.text_input(
+        "Enter Your Nearmap API Key",
+        type="password",
+        value=os.getenv("NEARMAP_API_TOKEN", ""),
+    )
     
     # Resource Type Selection
     # Container for resource type checkboxes with scrollable area
@@ -500,10 +511,11 @@ with left:
     
 
     # Action buttons
-    button_col1, button_col2 = st.columns(2, gap=None)
+    button_col1, button_col2 = st.columns(2)
     with button_col1:
         # Primary button to submit the cost estimation request
-        if st.button("Submit Estimation", type="primary", help="Submit the estimation to the API", icon="🔥"):
+        if st.button("Submit Estimation", type="primary", width="stretch",
+                     help="Submit the estimation to the API"):
             # Validation checks before making API request
             if not api_key:
                 st.session_state['latestErrorMessage'] = "Please enter an API key."
@@ -547,7 +559,8 @@ with left:
                     }
     with button_col2:
         # Secondary button to view the cost table
-        if st.button("See Cost Table", type="secondary", help="See the cost table", icon="📊"):
+        if st.button("See Cost Table", type="secondary", width="stretch",
+                     help="See the cost table"):
             OtherHelpers.seeCostTable()
 
     # Run a pending API estimation. Small jobs run immediately; large ones (many
@@ -564,10 +577,10 @@ with left:
                 f"API calls (~{est_min:.1f} min at {DEFAULT_MAX_WORKERS} parallel). Proceed?"
             )
             confirm_col1, confirm_col2 = st.columns(2)
-            if confirm_col1.button("Proceed", type="primary", icon="✅", width="stretch"):
+            if confirm_col1.button("Proceed", type="primary", width="stretch"):
                 st.session_state.pop('pending_request', None)
                 OtherHelpers.run_estimation(req)
-            if confirm_col2.button("Cancel", icon="✖️", width="stretch"):
+            if confirm_col2.button("Cancel", width="stretch"):
                 st.session_state.pop('pending_request', None)
 
     # Export the last estimation as an auditable quote (feature 4): CSV / JSON with a
@@ -577,12 +590,12 @@ with left:
         st.markdown("**Export last quote**")
         export_col1, export_col2 = st.columns(2)
         export_col1.download_button(
-            "⬇️ CSV", data=quote_export.quote_to_csv(quote),
+            "CSV", data=quote_export.quote_to_csv(quote),
             file_name="nearmap_quote.csv", mime="text/csv", width="stretch",
             help="Resources, area, tiles, cost, pricing snapshot + timestamp",
         )
         export_col2.download_button(
-            "⬇️ JSON", data=quote_export.quote_to_json(quote),
+            "JSON", data=quote_export.quote_to_json(quote),
             file_name="nearmap_quote.json", mime="application/json", width="stretch",
             help="Same quote as machine-readable JSON",
         )

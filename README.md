@@ -2,6 +2,15 @@
 
 A Streamlit-based web application for estimating costs of Nearmap API requests based on area coverage and selected resource types. This tool helps users understand the credit costs associated with their Nearmap data requests before making API calls.
 
+## Quick start
+
+```bash
+cp .env.sample .env          # add your Nearmap API key
+uv run streamlit run main.py
+```
+
+See [Installation](#installation) for the full instructions.
+
 ## Overview
 
 The Nearmap Cost Estimation UI provides an intuitive interface for:
